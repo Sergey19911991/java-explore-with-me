@@ -20,7 +20,7 @@ public class BaseClient {
     }
 
 
-  protected ResponseEntity<Object> get(String path, @Nullable Map<String, Object> parameters) {
+    protected ResponseEntity<Object> get(String path, @Nullable Map<String, Object> parameters) {
         return makeAndSendRequest(HttpMethod.GET, path, parameters, null);
     }
 
@@ -28,8 +28,8 @@ public class BaseClient {
         return post(path, body);
     }
 
-    protected <T> ResponseEntity<Object> post(String path,  T body,@Nullable Map<String, Object> parameters) {
-        return makeAndSendRequest(HttpMethod.POST, path, parameters,body);
+    protected <T> ResponseEntity<Object> post(String path, T body, @Nullable Map<String, Object> parameters) {
+        return makeAndSendRequest(HttpMethod.POST, path, parameters, body);
     }
 
 
@@ -59,7 +59,7 @@ public class BaseClient {
         return headers;
     }
 
-   private static ResponseEntity<Object> prepareGatewayResponse(ResponseEntity<Object> response) {
+    private static ResponseEntity<Object> prepareGatewayResponse(ResponseEntity<Object> response) {
         if (response.getStatusCode().is2xxSuccessful()) {
             return response;
         }

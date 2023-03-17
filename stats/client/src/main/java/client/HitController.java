@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class HitController {
 
     private final HitClient hitClient;
+
     @PostMapping(value = "/hit")
     public ResponseEntity<Object> creatHit(@RequestBody Hit hit) {
         return hitClient.createHit(hit);

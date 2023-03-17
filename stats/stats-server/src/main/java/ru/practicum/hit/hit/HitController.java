@@ -18,9 +18,9 @@ public class HitController {
         return hitService.creatHit(hit);
     }
 
-    @GetMapping(value="/stats")
-    public List<HitDto> getHits(@RequestParam (value = "start") String start, @RequestParam (value = "end") String end,
-                                @RequestParam (value = "uris") String[] uri, @RequestParam (value = "unique", defaultValue = "false") boolean unique) {
-           return hitService.getHits(start,end,uri, unique);
+    @GetMapping(value = "/stats")
+    public List<HitDto> getHits(@RequestParam(value = "start") String start, @RequestParam(value = "end") String end,
+                                @RequestParam(value = "uris") String[] uri, @RequestParam(value = "unique", defaultValue = "false") boolean unique) {
+        return hitService.getHits(start, end, uri, unique);
     }
 }

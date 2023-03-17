@@ -23,7 +23,7 @@ public class HitClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> createHit (Hit hit) {
+    public ResponseEntity<Object> createHit(Hit hit) {
         return post("/hit", hit);
     }
 
@@ -32,7 +32,7 @@ public class HitClient extends BaseClient {
                 "start", start,
                 "end", end,
                 "uri", uri,
-                "unique",unique
+                "unique", unique
         );
         return get("/stats?start={start}&end={end}&uri={{uri}}&unique={unique}", parameters);
     }
