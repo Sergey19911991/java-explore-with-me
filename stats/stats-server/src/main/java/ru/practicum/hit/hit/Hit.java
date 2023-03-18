@@ -1,13 +1,13 @@
 package ru.practicum.hit.hit;
 
-import lombok.Data;
+import lombok.Getter;
 
 import javax.persistence.*;
 
 
 @Entity
 @Table(name = "hit")
-@Data
+@Getter
 public class Hit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
