@@ -32,4 +32,5 @@ public class UserController {
     public List<User> getUsers(@RequestParam(value = "ids") int[] ids, @RequestParam(value = "from", defaultValue = "0") int from, @RequestParam(value = "size", defaultValue = "10") int size) {
         return userService.getUser(ids, size, from);
     }
+
 }
