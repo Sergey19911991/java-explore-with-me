@@ -41,4 +41,5 @@ public class CompilationController {
     public Compilation updateCompilation(@PathVariable int compId, @RequestBody DtoCompilation dtoCompilation) {
         return compilationService.updateCompilation(compId, dtoCompilation);
     }
+
 }
