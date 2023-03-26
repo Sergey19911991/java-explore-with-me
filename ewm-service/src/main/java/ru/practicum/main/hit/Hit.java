@@ -1,14 +1,15 @@
-package client;
+package ru.practicum.main.hit;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class Hit {
-    private int id;
     private String ip;
     private String uri;
     private String app;

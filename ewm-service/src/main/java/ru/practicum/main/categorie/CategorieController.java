@@ -16,26 +16,34 @@ public class CategorieController {
 
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(value="/admin/categories")
-    public Categorie creatCategorie(@RequestBody dtoCategorie categorie){
-        log.info("В контроллере категорий");
+    @PostMapping(value = "/admin/categories")
+    public Categorie creatCategorie(@RequestBody DtoCategorie categorie) {
         return categorieService.creatCategorie(categorie);
-    };
+    }
+
+    ;
 
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping(value="/admin/categories/{catId}")
-    public void deletCategorie (@PathVariable("catId") int catId) {categorieService.deletCategorie(catId);
+    @DeleteMapping(value = "/admin/categories/{catId}")
+    public void deletCategorie(@PathVariable int catId) {
+        categorieService.deletCategorie(catId);
     }
 
-    @GetMapping(value="/categories")
-    public List<Categorie> getCategories( @RequestParam(value = "from",defaultValue ="0") int from, @RequestParam(value = "size", defaultValue = "10") int size) {
-        return categorieService.getCategories(from,size);
+    @GetMapping(value = "/categories")
+    public List<Categorie> getCategories(@RequestParam(value = "from", defaultValue = "0") int from, @RequestParam(value = "size", defaultValue = "10") int size) {
+        return categorieService.getCategories(from, size);
     }
 
-    @GetMapping(value="/categories/{catId}")
-    public Categorie getCategorie(@PathVariable ("catId")int catId) {
+    @GetMapping(value = "/categories/{catId}")
+    public Categorie getCategorie(@PathVariable("catId") int catId) {
         return categorieService.getCategorie(catId);
     }
 
+    @PatchMapping(value = "/admin/categories/{catId}")
+    public Categorie updateCategorie(@RequestBody DtoCategorie dtoCategorie, @PathVariable int catId) {
+        return categorieService.updateCategorie(dtoCategorie, catId);
+    }
+
+    ;
 }

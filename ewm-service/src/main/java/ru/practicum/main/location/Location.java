@@ -1,4 +1,4 @@
-package ru.practicum.main.user;
+package ru.practicum.main.location;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,16 +6,16 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "users")
+@Table(name = "location")
 @Getter
 @Setter
-public class User {
+public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @Column(name = "name")
-    private String name;
-    @Column(name = "email")
-    private String email;
+    @Column(name = "lat")
+    private double lat;
+    @Column(name = "lon")
+    private double lon;
 }

@@ -1,11 +1,10 @@
 package ru.practicum.main.categorie;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class dtoCategorie {
+public class DtoCategorie {
     private String name;
 }

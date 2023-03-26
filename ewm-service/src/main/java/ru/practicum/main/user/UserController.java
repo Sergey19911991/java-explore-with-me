@@ -16,19 +16,20 @@ public class UserController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public User creatUser(@RequestBody User user){
-        log.info("контроллер");
-        return userService.creatUser(user);}
+    public User creatUser(@RequestBody User user) {
+        return userService.creatUser(user);
+    }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping(value="/{userId}")
-    public void deletUser(@PathVariable int userId){
+    @DeleteMapping(value = "/{userId}")
+    public void deletUser(@PathVariable int userId) {
         userService.deletUser(userId);
-    };
+    }
+
+    ;
 
     @GetMapping
-    public List<User> getUsers(@RequestParam(value = "ids") int[] ids, @RequestParam(value = "from",defaultValue ="0") int from, @RequestParam(value = "size", defaultValue = "10") int size){
-          log.info("контроллер get");
-          return userService.getUser(ids,size,from);
+    public List<User> getUsers(@RequestParam(value = "ids") int[] ids, @RequestParam(value = "from", defaultValue = "0") int from, @RequestParam(value = "size", defaultValue = "10") int size) {
+        return userService.getUser(ids, size, from);
     }
 }
