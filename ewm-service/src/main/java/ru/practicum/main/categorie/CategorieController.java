@@ -42,5 +42,4 @@ public class CategorieController {
         return categorieService.updateCategorie(dtoCategorie, catId);
     }
 
-    ;
 }
