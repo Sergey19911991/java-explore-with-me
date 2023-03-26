@@ -21,9 +21,6 @@ public class CategorieController {
         return categorieService.creatCategorie(categorie);
     }
 
-    ;
-
-
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/admin/categories/{catId}")
     public void deletCategorie(@PathVariable int catId) {
