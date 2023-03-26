@@ -22,14 +22,14 @@ services:
       - POSTGRES_DB=stats
 
   ewm-service:
-    build: ewm-service
-    image: ewm-service
-    container_name: ewm-service
-    ports:
+     build: ewm-service
+     image: ewm-service
+     container_name: ewm-service
+     ports:
       - "8080:8080"
-    depends_on:
+     depends_on:
       - ewm-db
-    environment:
+     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/main
       - POSTGRES_PASSWORD=password
       - POSTGRES_USER=shareit

@@ -43,6 +43,7 @@ public class HitServiceImpl implements HitService {
                 }
             }
             hitDto.setHits(k);
+            hitDto.setApp("ewm-main-service");
             hitsDto.add(hitDto);
         }
         Collections.sort(hitsDto, new Comparator<HitDto>() {
