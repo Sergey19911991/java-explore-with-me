@@ -1,4 +1,4 @@
-package client;
+package ru.practicum.main.client;
 
 import java.util.List;
 import java.util.Map;
@@ -74,4 +74,3 @@ public class BaseClient {
         return responseBuilder.build();
     }
 }
-
