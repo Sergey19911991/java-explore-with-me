@@ -41,4 +41,5 @@ public class CategorieController {
     public Categorie updateCategorie(@RequestBody DtoCategorie dtoCategorie, @PathVariable int catId) {
         return categorieService.updateCategorie(dtoCategorie, catId);
     }
+
 }
