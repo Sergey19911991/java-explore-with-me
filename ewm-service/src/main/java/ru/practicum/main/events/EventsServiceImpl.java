@@ -168,10 +168,10 @@ public class EventsServiceImpl implements EventsService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime localDateTime = LocalDateTime.parse("1900-01-01 01:01:00", formatter);
         LocalDateTime localDateTime1 = LocalDateTime.parse("2100-01-01 01:01:00", formatter);
-        if (!rangeStart.equals(null)) {
+        if (rangeStart!=null) {
             localDateTime = LocalDateTime.parse(rangeStart, formatter);
         }
-        if (!rangeEnd.equals(null)) {
+        if (rangeEnd!=null) {
             localDateTime1 = LocalDateTime.parse(rangeEnd, formatter);
         }
         List<Event> events = eventsRepository.getEventAdmin(from, size, localDateTime, localDateTime1, categories, users, states);
