@@ -82,22 +82,22 @@ public class EventsServiceImpl implements EventsService {
             event.setCategory(categorieRepository.findById(updateAdmin.getCategory()).get());
         }
         if (updateAdmin.getStateAction() == StateAction.PUBLISH_EVENT) {
-            if (event.getState().toString() == "PENDING") {
+            if (event.getState() == State.PENDING) {
                 event.setState(State.PUBLISHED);
                 event.setPublishedOn(LocalDateTime.now().toString());
             } else {
-                if (event.getState().toString() == "CANCELED") {
+                if (event.getState() == State.CANCELED) {
                     throw new ConflictException("Публикация отмененного события!");
                 }
-                if (event.getState().toString() == "PUBLISHED") {
+                if (event.getState() == State.PUBLISHED) {
                     throw new ConflictException("Публикация опубликованного события!");
                 }
             }
         }
         if (updateAdmin.getStateAction() == StateAction.REJECT_EVENT) {
-            if (event.getState().toString() == "PENDING") {
+            if (event.getState() == State.PENDING) {
                 event.setState(State.CANCELED);
-            } else if (event.getState().toString() == "PUBLISHED") {
+            } else if (event.getState() == State.PUBLISHED) {
                 throw new ConflictException("Отмена опубликованного события!");
             }
         }
@@ -134,17 +134,17 @@ public class EventsServiceImpl implements EventsService {
             }
         }
         Event event = eventsRepository.findById(eventId).get();
-        if (event.getState().toString() == "PUBLISHED") {
+        if (event.getState() == State.PUBLISHED) {
             throw new ConflictException("Изменение опубликованного события!");
         }
         mappingEvent.mappingUpdateAdmin(updateAdmin, event);
         if (updateAdmin.getCategory() != null) {
             event.setCategory(categorieRepository.findById(updateAdmin.getCategory()).get());
         }
-        if (updateAdmin.getStateAction().toString() == "CANCEL_REVIEW") {
+        if (updateAdmin.getStateAction() == StateAction.CANCEL_REVIEW) {
             event.setState(State.CANCELED);
         }
-        if (updateAdmin.getStateAction().toString() == "SEND_TO_REVIEW") {
+        if (updateAdmin.getStateAction() == StateAction.SEND_TO_REVIEW) {
             event.setState(State.PENDING);
         }
         return eventsRepository.save(event);
@@ -168,13 +168,14 @@ public class EventsServiceImpl implements EventsService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime localDateTime = LocalDateTime.parse("1900-01-01 01:01:00", formatter);
         LocalDateTime localDateTime1 = LocalDateTime.parse("2100-01-01 01:01:00", formatter);
-        if (rangeStart != null) {
+        if (!rangeStart.equals(null)) {
             localDateTime = LocalDateTime.parse(rangeStart, formatter);
         }
-        if (rangeEnd != null) {
+        if (!rangeEnd.equals(null)) {
             localDateTime1 = LocalDateTime.parse(rangeEnd, formatter);
         }
         List<Event> events = eventsRepository.getEventAdmin(from, size, localDateTime, localDateTime1, categories, users, states);
         return events;
     }
+
 }
