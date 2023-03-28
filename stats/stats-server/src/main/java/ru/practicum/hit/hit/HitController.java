@@ -3,6 +3,7 @@ package ru.practicum.hit.hit;
 import dto.HitDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 public class HitController {
     private final HitServiceImpl hitService;
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(value = "/hit")
     public Hit creatHit(@RequestBody Hit hit) {
         return hitService.creatHit(hit);
