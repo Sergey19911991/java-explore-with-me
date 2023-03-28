@@ -97,7 +97,7 @@ public class EventsServiceImpl implements EventsService {
         if (updateAdmin.getStateAction() == StateAction.REJECT_EVENT) {
             if (event.getState() == State.PENDING) {
                 event.setState(State.CANCELED);
-            } else if (event.getState().toString() == "PUBLISHED") {
+            } else if (event.getState() == State.PUBLISHED) {
                 throw new ConflictException("Отмена опубликованного события!");
             }
         }
