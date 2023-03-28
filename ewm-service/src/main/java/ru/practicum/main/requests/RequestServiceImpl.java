@@ -31,7 +31,7 @@ public class RequestServiceImpl implements RequestService {
         if (event.getInitiator().getId() == userId) {
             throw new ConflictException("Добавление запроса от инициатора запроса!");
         }
-        if (event.getState()==State.PUBLISHED) {
+        if (event.getState() == State.PUBLISHED) {
             throw new ConflictException("Добавление запроса на участие в неопубликованном событии!");
         }
         List<Request> requests = requestRepository.getRequestsUserEvent(userId, eventId);
@@ -70,7 +70,7 @@ public class RequestServiceImpl implements RequestService {
         Event event = eventsRepository.findById(eventId).get();
         EvebtRequestUpdateStatusResult evebtRequestUpdateStatusResult = new EvebtRequestUpdateStatusResult();
         List<Request> requests = requestRepository.getRequests(dtoRequest.getRequestIds());
-        if (dtoRequest.getStatus()==Status.CONFIRMED) {
+        if (dtoRequest.getStatus() == Status.CONFIRMED) {
             if (event.getConfirmedRequests() >= event.getParticipantLimit()) {
                 throw new ConflictException("У события заполнен лимит участников!");
             }
@@ -81,9 +81,9 @@ public class RequestServiceImpl implements RequestService {
             }
             evebtRequestUpdateStatusResult.setConfirmedRequests(requests);
         }
-        if (dtoRequest.getStatus()==Status.REJECTED) {
+        if (dtoRequest.getStatus() == Status.REJECTED) {
             for (Request request : requests) {
-                if (request.getStatus()!=State.CONFIRMED) {
+                if (request.getStatus() != State.CONFIRMED) {
                     request.setStatus(State.REJECTED);
                     requestRepository.save(request);
                 } else {
