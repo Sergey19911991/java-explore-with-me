@@ -82,20 +82,20 @@ public class EventsServiceImpl implements EventsService {
             event.setCategory(categorieRepository.findById(updateAdmin.getCategory()).get());
         }
         if (updateAdmin.getStateAction() == StateAction.PUBLISH_EVENT) {
-            if (event.getState().toString() == "PENDING") {
+            if (event.getState()==State.PENDING) {
                 event.setState(State.PUBLISHED);
                 event.setPublishedOn(LocalDateTime.now().toString());
             } else {
-                if (event.getState().toString() == "CANCELED") {
+                if (event.getState()==State.CANCELED) {
                     throw new ConflictException("Публикация отмененного события!");
                 }
-                if (event.getState().toString() == "PUBLISHED") {
+                if (event.getState()==State.PUBLISHED) {
                     throw new ConflictException("Публикация опубликованного события!");
                 }
             }
         }
         if (updateAdmin.getStateAction() == StateAction.REJECT_EVENT) {
-            if (event.getState().toString() == "PENDING") {
+            if (event.getState()==State.PENDING) {
                 event.setState(State.CANCELED);
             } else if (event.getState().toString() == "PUBLISHED") {
                 throw new ConflictException("Отмена опубликованного события!");
@@ -134,17 +134,17 @@ public class EventsServiceImpl implements EventsService {
             }
         }
         Event event = eventsRepository.findById(eventId).get();
-        if (event.getState().toString() == "PUBLISHED") {
+        if (event.getState()==State.PUBLISHED) {
             throw new ConflictException("Изменение опубликованного события!");
         }
         mappingEvent.mappingUpdateAdmin(updateAdmin, event);
         if (updateAdmin.getCategory() != null) {
             event.setCategory(categorieRepository.findById(updateAdmin.getCategory()).get());
         }
-        if (updateAdmin.getStateAction().toString() == "CANCEL_REVIEW") {
+        if (updateAdmin.getStateAction()==StateAction.CANCEL_REVIEW) {
             event.setState(State.CANCELED);
         }
-        if (updateAdmin.getStateAction().toString() == "SEND_TO_REVIEW") {
+        if (updateAdmin.getStateAction()==StateAction.SEND_TO_REVIEW) {
             event.setState(State.PENDING);
         }
         return eventsRepository.save(event);
