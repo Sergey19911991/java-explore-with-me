@@ -9,7 +9,7 @@ import java.util.List;
 public interface HitsRepository extends JpaRepository<Hit, Integer> {
 
 
-    @Query(value = "select * " +
+    @Query(value = "select *  " +
             "from hit as h " +
             "WHERE  CAST(h.timestamp AS timestamp) > ?1 " +
             "AND CAST(h.timestamp AS timestamp)<?2 " +
@@ -17,11 +17,25 @@ public interface HitsRepository extends JpaRepository<Hit, Integer> {
             nativeQuery = true)
     List<Hit> getHits(LocalDateTime start, LocalDateTime end, String[] uri);
 
-    @Query(value = "select h.id_hit, h.app,h.uri,DISTINCT h.ip,h.timestamp " +
+    @Query(value = "select DISTINCT *" +
             "from hit as h " +
             "WHERE  CAST(h.timestamp AS timestamp) > ?1 " +
             "AND CAST(h.timestamp AS timestamp)<?2 " +
             "AND h.uri IN (?3)",
             nativeQuery = true)
     List<Hit> getHitsUnique(LocalDateTime start, LocalDateTime end, String[] uri);
+
+    @Query(value = "select *  " +
+            "from hit as h " +
+            "WHERE  CAST(h.timestamp AS timestamp) > ?1 " +
+            "AND CAST(h.timestamp AS timestamp)<?2 ",
+          nativeQuery = true)
+    List<Hit> getHitsUriNull(LocalDateTime start, LocalDateTime end);
+
+    @Query(value = "select DISTINCT * " +
+            "from hit as h " +
+            "WHERE  CAST(h.timestamp AS timestamp) > ?1 " +
+            "AND CAST(h.timestamp AS timestamp)<?2 ",
+            nativeQuery = true)
+    List<Hit> getHitsUniqueUriNull(LocalDateTime start, LocalDateTime end);
 }

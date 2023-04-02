@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public interface EventsRepository extends JpaRepository<Event, Integer> {
     @Query(value = "select * " +
@@ -61,5 +62,8 @@ public interface EventsRepository extends JpaRepository<Event, Integer> {
             "from events as e " +
             "WHERE e.id IN(?1) ",
             nativeQuery = true)
-    List<Event> getEventForCompilation(List<Integer> events);
+    Set<Event> getEventForCompilation(Set<Integer> events);
+
+
+
 }

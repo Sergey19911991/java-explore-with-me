@@ -23,9 +23,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public Request creatRequest(int userId, int eventId) {
         Event event = eventsRepository.findById(eventId).get();
-        //List<Request> requestsLimit = requestRepository.getRequestsEventConfirmed(eventId);
-        //log.info("{}",requestsLimit.size());
-        if (event.getConfirmedRequests() >= event.getParticipantLimit()) {
+        if (requestRepository.getRequestsEventConfirmed(eventId).size() >= event.getParticipantLimit()) {
             throw new ConflictException("У события заполнен лимит участников!");
         }
         if (event.getInitiator().getId() == userId) {
@@ -40,11 +38,10 @@ public class RequestServiceImpl implements RequestService {
             request.setRequester(userId);
             request.setEvent(eventId);
             if (event.getRequestModeration() == false) {
-                request.setStatus(State.CONFIRMED);
-                event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+                request.setStatus(String.valueOf(State.CONFIRMED));
             }
             if (event.getRequestModeration() == true) {
-                request.setStatus(State.PENDING);
+                request.setStatus(String.valueOf(State.PENDING));
             }
             request.setCreated(LocalDateTime.now().toString());
             return requestRepository.save(request);
@@ -61,7 +58,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public Request cancelRequest(int userId, int requestId) {
         Request request = requestRepository.getRequestsUser(userId, requestId);
-        request.setStatus(State.CANCELED);
+        request.setStatus(String.valueOf(State.CANCELED));
         return requestRepository.save(request);
     }
 
@@ -71,20 +68,19 @@ public class RequestServiceImpl implements RequestService {
         EvebtRequestUpdateStatusResult evebtRequestUpdateStatusResult = new EvebtRequestUpdateStatusResult();
         List<Request> requests = requestRepository.getRequests(dtoRequest.getRequestIds());
         if (dtoRequest.getStatus() == Status.CONFIRMED) {
-            if (event.getConfirmedRequests() >= event.getParticipantLimit()) {
+            if (requestRepository.getRequestsEventConfirmed(eventId).size() >= event.getParticipantLimit()) {
                 throw new ConflictException("У события заполнен лимит участников!");
             }
             for (Request request : requests) {
-                request.setStatus(State.CONFIRMED);
-                event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+                request.setStatus(String.valueOf(State.CONFIRMED));
                 requestRepository.save(request);
             }
             evebtRequestUpdateStatusResult.setConfirmedRequests(requests);
         }
         if (dtoRequest.getStatus() == Status.REJECTED) {
             for (Request request : requests) {
-                if (request.getStatus() != State.CONFIRMED) {
-                    request.setStatus(State.REJECTED);
+                if (!request.getStatus().equals(String.valueOf(State.CONFIRMED))) {
+                    request.setStatus(String.valueOf(State.REJECTED));
                     requestRepository.save(request);
                 } else {
                     throw new ConflictException("Отмена уже принятой заявки");

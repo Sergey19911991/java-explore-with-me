@@ -20,26 +20,33 @@ public class UserServiceImpl implements UserService {
         if (user.getName() != null) {
             List<User> users = userRepository.getName(user.getName());
             if (users.size() == 0) {
+                log.info("Создан пользователь {}",user);
                 return userRepository.save(user);
             } else {
-                throw new ConflictException("");
+                log.error("Добавление пользователя с занятым именем!");
+                throw new ConflictException("Добавление пользователя с занятым именем!");
             }
         } else {
-            throw new RequestException("Неправильное тело запроса");
+            log.error("Неправильное тело запроса!");
+            throw new RequestException("Неправильное тело запроса!");
         }
     }
 
     @Override
     public List<User> getUser(int[] ids, int size, int from) {
-        return userRepository.getUsers(ids, from, size);
+        if (ids != null && ids.length != 0) {
+            log.info("Информация о {} пользователях с id {}, начиная с пользователя {} в списке, отсортированном по возрастанию id.",size,ids,from);
+            return userRepository.getUsers(ids, from, size);
+        } else {
+            log.info("Информация о {} пользователях, начиная с пользователя {} в списке, отсортированном по возрастанию id.",size,from);
+            return userRepository.getUsersIdsNull(from, size);
+        }
     }
-
-    ;
 
     @Override
     public void deletUser(int userId) {
+        log.info("Удален пользователь с id {}",userId);
         userRepository.deleteById(userId);
     }
 
-    ;
 }

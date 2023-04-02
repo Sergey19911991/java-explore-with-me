@@ -2,7 +2,6 @@ package ru.practicum.main.requests;
 
 import lombok.Getter;
 import lombok.Setter;
-import ru.practicum.main.events.State;
 
 import javax.persistence.*;
 
@@ -22,5 +21,5 @@ public class Request {
     @Column(name = "requester")
     private int requester;
     @Column(name = "status")
-    private State status;
+    private String status;
 }

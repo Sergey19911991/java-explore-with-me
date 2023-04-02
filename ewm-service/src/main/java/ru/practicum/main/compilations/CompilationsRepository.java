@@ -17,5 +17,5 @@ public interface CompilationsRepository extends JpaRepository<Compilation, Integ
             "from compilations as c " +
             "LIMIT ?2 OFFSET ?1 ",
             nativeQuery = true)
-    List<Compilation> getEventForCompilationAll(int from, int size, Boolean pinned);
+    List<Compilation> getEventForCompilationAll(int from, int size);
 }

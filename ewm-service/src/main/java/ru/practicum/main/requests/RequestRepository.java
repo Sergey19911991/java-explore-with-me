@@ -51,7 +51,9 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
     @Query(value = "select * " +
             "from requests as r " +
             "WHERE r.event = ?1 " +
-            "AND r.status='CONFIRMED'",
+            "AND r.status='CONFIRMED' ",
             nativeQuery = true)
     List<Request> getRequestsEventConfirmed(int id);
+
+
 }

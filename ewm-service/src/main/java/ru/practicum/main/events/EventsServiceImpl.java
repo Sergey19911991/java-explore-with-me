@@ -1,5 +1,6 @@
 package ru.practicum.main.events;
 
+import hit.HitClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -7,8 +8,6 @@ import ru.practicum.main.categorie.CategorieRepository;
 import ru.practicum.main.events.dto.*;
 import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.RequestException;
-import ru.practicum.main.location.Location;
-import ru.practicum.main.location.LocationRepository;
 import ru.practicum.main.user.UserRepository;
 
 import java.time.LocalDateTime;
@@ -28,27 +27,27 @@ public class EventsServiceImpl implements EventsService {
 
     private final CategorieRepository categorieRepository;
 
-    private final LocationRepository locationRepository;
+    private final HitClient hitClient;
+
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public NewEvent creatEvent(DtoEvent dtoEvent, int userId) {
         if (dtoEvent.getAnnotation() == null || dtoEvent.getTitle() == null) {
             throw new RequestException("Некорректное тело запроса!");
         }
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime localDateTime = LocalDateTime.parse(dtoEvent.getEventDate(), formatter);
         if (localDateTime.isBefore(LocalDateTime.now())) {
             throw new ConflictException("Добавление события на неподходящую дату!");
         }
         Event event = mappingEvent.mapping(dtoEvent);
-        event.setCreatedOn(LocalDateTime.now().toString());
+        event.setCreatedOn(LocalDateTime.now());
         event.setInitiator(userRepository.findById(userId).get());
         event.setCategory(categorieRepository.findById(dtoEvent.getCategory()).get());
-        Location location = locationRepository.save(dtoEvent.getLocation());
-        event.setLocation(location);
-        event.setViews(0);
+        event.setLocation(dtoEvent.getLocation());
         event.setState(State.PENDING);
-        event.setConfirmedRequests(0);
+        //event.setConfirmedRequests(0);
         Event event1 = eventsRepository.save(event);
         return mappingEvent.mappingNewEvent(event1);
     }
@@ -60,17 +59,12 @@ public class EventsServiceImpl implements EventsService {
         for (Event event : events) {
             eventUsers.add(mappingEvent.mappingEventUser(event));
         }
-        for (Event event : events) {
-            event.setViews(event.getViews() + 1);
-            eventsRepository.save(event);
-        }
         return eventUsers;
     }
 
     @Override
-    public Event updateAdmin(UpdateAdmin updateAdmin, int id) {
+    public NewEvent updateAdmin(UpdateAdmin updateAdmin, int id) {
         if (updateAdmin.getEventDate() != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime localDateTime = LocalDateTime.parse(updateAdmin.getEventDate(), formatter);
             if (localDateTime.isBefore(LocalDateTime.now())) {
                 throw new ConflictException("Изменение даты события на уже наступившую");
@@ -84,7 +78,7 @@ public class EventsServiceImpl implements EventsService {
         if (updateAdmin.getStateAction() == StateAction.PUBLISH_EVENT) {
             if (event.getState() == State.PENDING) {
                 event.setState(State.PUBLISHED);
-                event.setPublishedOn(LocalDateTime.now().toString());
+                event.setPublishedOn(LocalDateTime.now());
             } else {
                 if (event.getState() == State.CANCELED) {
                     throw new ConflictException("Публикация отмененного события!");
@@ -101,33 +95,25 @@ public class EventsServiceImpl implements EventsService {
                 throw new ConflictException("Отмена опубликованного события!");
             }
         }
-        return eventsRepository.save(event);
+        eventsRepository.save(event);
+        return mappingEvent.mappingNewEvent(event);
     }
 
     @Override
-    public List<Event> getEvent(String text, int[] categories, String paid, String rangeStart, String rangeEnd,
-                                String onlyAvailable, Sort sort, int from, int size) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime localDateTime = LocalDateTime.parse("1900-01-01 01:01:00", formatter);
-        LocalDateTime localDateTime1 = LocalDateTime.parse("2100-01-01 01:01:00", formatter);
-        if (rangeStart != null) {
-            localDateTime = LocalDateTime.parse(rangeStart, formatter);
-        }
-        if (rangeEnd != null) {
-            localDateTime1 = LocalDateTime.parse(rangeEnd, formatter);
-        }
-        List<Event> events = eventsRepository.getEvent(from, size, localDateTime, localDateTime1, categories, Boolean.valueOf(paid), text);
+    public List<EventsShortDto> getEvent(String text, int[] categories, String paid, LocalDateTime rangeStart, LocalDateTime rangeEnd,
+                                         String onlyAvailable, Sort sort, int from, int size) {
+
+        List<Event> events = eventsRepository.getEvent(from, size, rangeStart, rangeEnd, categories, Boolean.valueOf(paid), text);
+        List<EventsShortDto> eventsShortDtos = new ArrayList<>();
         for (Event event : events) {
-            event.setViews(event.getViews() + 1);
-            eventsRepository.save(event);
+            eventsShortDtos.add(mappingEvent.mappingEventsShortDto(event));
         }
-        return events;
+        return eventsShortDtos;
     }
 
     @Override
-    public Event updateUser(UpdateAdmin updateAdmin, int userId, int eventId) {
+    public NewEvent updateUser(UpdateAdmin updateAdmin, int userId, int eventId) {
         if (updateAdmin.getEventDate() != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime localDateTime = LocalDateTime.parse(updateAdmin.getEventDate(), formatter);
             if (localDateTime.isBefore(LocalDateTime.now())) {
                 throw new ConflictException("Изменение даты события на уже наступившую");
@@ -147,12 +133,15 @@ public class EventsServiceImpl implements EventsService {
         if (updateAdmin.getStateAction() == StateAction.SEND_TO_REVIEW) {
             event.setState(State.PENDING);
         }
-        return eventsRepository.save(event);
+        eventsRepository.save(event);
+
+        return mappingEvent.mappingNewEvent(event);
     }
 
     @Override
-    public Event getEventById(int id) {
-        return eventsRepository.getEventsById(id);
+    public NewEvent getEventById(int id) {
+        NewEvent newEvent = mappingEvent.mappingNewEvent(eventsRepository.getEventsById(id));
+        return newEvent;
     }
 
     @Override
@@ -160,21 +149,16 @@ public class EventsServiceImpl implements EventsService {
         return eventsRepository.getUserEvet(userId, eventId);
     }
 
-    ;
 
     @Override
-    public List<Event> getAdminEvents(int size, int from, String rangeStart, String rangeEnd, int[] categories, int[] users,
-                                      String[] states) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime localDateTime = LocalDateTime.parse("1900-01-01 01:01:00", formatter);
-        LocalDateTime localDateTime1 = LocalDateTime.parse("2100-01-01 01:01:00", formatter);
-        if (rangeStart != null) {
-            localDateTime = LocalDateTime.parse(rangeStart, formatter);
+    public List<NewEvent> getAdminEvents(int size, int from, LocalDateTime rangeStart, LocalDateTime rangeEnd, int[] categories, int[] users,
+                                         String[] states) {
+        List<Event> events = eventsRepository.getEventAdmin(from, size, rangeStart, rangeEnd, categories, users, states);
+        List<NewEvent> newEvents = new ArrayList<>();
+        for (Event event : events) {
+            NewEvent newEvent = mappingEvent.mappingNewEvent(event);
+            newEvents.add(newEvent);
         }
-        if (rangeEnd != null) {
-            localDateTime1 = LocalDateTime.parse(rangeEnd, formatter);
-        }
-        List<Event> events = eventsRepository.getEventAdmin(from, size, localDateTime, localDateTime1, categories, users, states);
-        return events;
+        return newEvents;
     }
 }

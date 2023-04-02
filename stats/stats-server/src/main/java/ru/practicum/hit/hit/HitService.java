@@ -1,11 +1,13 @@
 package ru.practicum.hit.hit;
 
 import dto.HitDto;
+import dto.DtoInletHit;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface HitService {
-    Hit creatHit(Hit hit);
+    HitDto creatHit(DtoInletHit hit);
 
-    List<HitDto> getHits(String start, String end, String[] uri, boolean unique);
+    List<HitDto> getHits(LocalDateTime start, LocalDateTime end, String[] uri, boolean unique);
 }

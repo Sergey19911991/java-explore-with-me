@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
 public class RequestController {
-    private final RequestServiceImpl requestService;
+    private final RequestService requestService;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(value = "/{userId}/requests")

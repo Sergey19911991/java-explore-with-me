@@ -5,7 +5,7 @@ import lombok.Setter;
 import ru.practicum.main.events.Event;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "compilations")
@@ -26,6 +26,6 @@ public class Compilation {
             joinColumns = {@JoinColumn(name = "id_compilation")},
             inverseJoinColumns = {@JoinColumn(name = "id")}
     )
-    List<Event> events;
+    Set<Event> events;
 
 }

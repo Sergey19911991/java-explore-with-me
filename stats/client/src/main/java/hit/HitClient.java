@@ -1,5 +1,7 @@
-package ru.practicum.main.hit;
+package hit;
 
+import client.BaseClient;
+import dto.DtoInletHit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -7,9 +9,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import ru.practicum.main.client.BaseClient;
 
+import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
+
 
 @Service
 public class HitClient extends BaseClient {
@@ -24,7 +29,7 @@ public class HitClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> createHit(Hit hit) {
+    public ResponseEntity<Object> createHit(DtoInletHit hit) {
         return post("/hit", hit);
     }
 
@@ -36,6 +41,15 @@ public class HitClient extends BaseClient {
                 "unique", unique
         );
         return get("/stats?start={start}&end={end}&uri={{uri}}&unique={unique}", parameters);
+    }
+
+    public DtoInletHit mappingHitDtoClient(HttpServletRequest request) {
+        DtoInletHit hit = new DtoInletHit();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        hit.setTimestamp(LocalDateTime.now().format(formatter));
+        hit.setIp(request.getRemoteAddr());
+        hit.setUri(request.getRequestURI());
+        return hit;
     }
 
 }

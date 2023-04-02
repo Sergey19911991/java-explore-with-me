@@ -22,18 +22,14 @@ public class CategorieServiceImpl implements CategorieService {
 
     @Override
     public Categorie creatCategorie(DtoCategorie dtoCategorie) {
-        if (dtoCategorie.getName() != null) {
             List<Categorie> categories = categorieRepository.getName(dtoCategorie.getName());
-            if (categories.size() == 0) {
+           if (categories.size() == 0) {
                 Categorie categorie = new Categorie();
                 categorie.setName(dtoCategorie.getName());
                 return categorieRepository.save(categorie);
             } else {
                 throw new ConflictException("");
             }
-        } else {
-            throw new RequestException("Неправильное тело запроса");
-        }
     }
 
     @Override

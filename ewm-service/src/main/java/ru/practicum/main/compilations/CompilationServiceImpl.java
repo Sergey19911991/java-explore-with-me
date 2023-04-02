@@ -20,13 +20,13 @@ public class CompilationServiceImpl implements CompilationService {
     public Compilation creatCompilation(DtoCompilation dtoCompilation) {
         Compilation compilation = new Compilation();
         compilation.setPinned(dtoCompilation.getPinned());
-        if (dtoCompilation.getTitle() != null) {
-            compilation.setTitle(dtoCompilation.getTitle());
+        compilation.setTitle(dtoCompilation.getTitle());
+        if (dtoCompilation.getEvents() != null) {
+            compilation.setEvents(eventsRepository.getEventForCompilation(dtoCompilation.getEvents()));
+            return compilationsRepository.save(compilation);
         } else {
             throw new RequestException("Неправильное тело запроса!");
         }
-        compilation.setEvents(eventsRepository.getEventForCompilation(dtoCompilation.getEvents()));
-        return compilationsRepository.save(compilation);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public List<Compilation> getCompilations(int from, int size, Boolean pinned) {
         if (pinned == null) {
-            return compilationsRepository.getEventForCompilationAll(from, size, pinned);
+            return compilationsRepository.getEventForCompilationAll(from, size);
         } else {
             return compilationsRepository.getEventForCompilation(from, size, pinned);
         }
@@ -48,10 +48,16 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     public Compilation updateCompilation(int compId, DtoCompilation dtoCompilation) {
-        Compilation compilation = compilationsRepository.findById(compId).get();
+        Compilation compilation = compilationsRepository.findById(compId).orElse(null);
         compilation.setEvents(eventsRepository.getEventForCompilation(dtoCompilation.getEvents()));
-        compilation.setTitle(dtoCompilation.getTitle());
-        compilation.setPinned(compilation.getPinned());
+        if (dtoCompilation.getTitle() != null) {
+            if (!dtoCompilation.getTitle().isBlank()) {
+                compilation.setTitle(dtoCompilation.getTitle());
+            }
+        }
+        if (dtoCompilation.getPinned() != null) {
+            compilation.setPinned(compilation.getPinned());
+        }
         return compilationsRepository.save(compilation);
     }
 }

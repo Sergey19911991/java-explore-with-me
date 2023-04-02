@@ -19,4 +19,11 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "WHERE u.name=?1 ",
             nativeQuery = true)
     List<User> getName(String name);
+
+    @Query(value = "select * " +
+            "from users as u " +
+            "ORDER BY u.id ASC " +
+            "LIMIT ?2 OFFSET ?1",
+            nativeQuery = true)
+    List<User> getUsersIdsNull(int from, int size);
 }

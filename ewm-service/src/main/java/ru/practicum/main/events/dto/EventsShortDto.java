@@ -6,11 +6,14 @@ import ru.practicum.main.categorie.CategorieDto;
 
 @Getter
 @Setter
-public class EventUser {
-    private int id;
-    private String title;
+public class EventsShortDto {
     private String annotation;
     private CategorieDto category;
-    private Boolean paid;
+    private Integer confirmedRequests;
     private String eventDate;
+    private Integer id;
+    private UserShortDto initiator;
+    private Boolean paid;
+    private String title;
+    private Integer views;
 }

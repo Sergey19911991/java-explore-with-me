@@ -7,6 +7,7 @@ import ru.practicum.main.location.Location;
 import ru.practicum.main.user.User;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "events")
@@ -22,15 +23,15 @@ public class Event {
     @Column(name = "title")
     private String title;
     @Column(name = "event_date")
-    private String eventDate;
+    private LocalDateTime eventDate;
     @Column(name = "paid")
     private Boolean paid;
     @Column(name = "created_on")
-    private String createdOn;
+    private LocalDateTime createdOn;
     @Column(name = "request_moderation")
     private Boolean requestModeration;
     @Column(name = "published_on")
-    private String publishedOn;
+    private LocalDateTime publishedOn;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_initiator")
     private User initiator;
@@ -41,13 +42,12 @@ public class Event {
     private int participantLimit;
     @Column(name = "state")
     private State state;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_location")
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "lat", column = @Column(name = "lat")),
+            @AttributeOverride(name = "lon", column = @Column(name = "lon"))
+    })
     private Location location;
     @Column(name = "description")
     private String description;
-    @Column(name = "views")
-    private int views;
-    @Column(name = "confirmed_requests")
-    private Integer confirmedRequests;
 }

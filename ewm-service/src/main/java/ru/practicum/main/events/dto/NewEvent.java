@@ -5,7 +5,9 @@ import lombok.Setter;
 import ru.practicum.main.categorie.Categorie;
 import ru.practicum.main.events.State;
 import ru.practicum.main.location.Location;
-import ru.practicum.main.user.User;
+
+import javax.validation.constraints.PositiveOrZero;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -15,13 +17,17 @@ public class NewEvent {
     private Categorie category;
     private String description;
     private Boolean paid;
+    @PositiveOrZero
     private int participantLimit;
     private String title;
     private Boolean requestModeration;
     private Location location;
     private String eventDate;
-    private User initiator;
-    private String createdOn;
+    private UserShortDto initiator;
+    private LocalDateTime createdOn;
     private State state;
+    private String publishedOn;
+    private Integer views;
+    private Integer confirmedRequests;
 }
 
