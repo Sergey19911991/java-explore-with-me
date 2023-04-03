@@ -3,9 +3,13 @@ package ru.practicum.main.compilations;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.main.compilations.dto.DtoCompilation;
+import ru.practicum.main.compilations.dto.NewCompilationDto;
+import ru.practicum.main.compilations.dto.UpdateCompilationRequest;
 import ru.practicum.main.events.EventsRepository;
-import ru.practicum.main.exception.RequestException;
+import ru.practicum.main.exception.NotFoundException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -16,48 +20,54 @@ public class CompilationServiceImpl implements CompilationService {
 
     private final EventsRepository eventsRepository;
 
+    private final MappingCompilation mappingCompilation;
+
     @Override
-    public Compilation creatCompilation(DtoCompilation dtoCompilation) {
-        Compilation compilation = new Compilation();
-        compilation.setPinned(dtoCompilation.getPinned());
-        compilation.setTitle(dtoCompilation.getTitle());
-        if (dtoCompilation.getEvents() != null) {
-            compilation.setEvents(eventsRepository.getEventForCompilation(dtoCompilation.getEvents()));
-            return compilationsRepository.save(compilation);
-        } else {
-            throw new RequestException("Неправильное тело запроса!");
-        }
+    public DtoCompilation creatCompilation(NewCompilationDto newCompilationDto) {
+        Compilation compilation = mappingCompilation.compilationNewCompilationDto(newCompilationDto);
+        log.info("Создана подборка событий");
+        compilationsRepository.save(compilation);
+        return mappingCompilation.dtoCompilation(compilation);
     }
 
     @Override
-    public Compilation getCompilation(int id) {
-        return compilationsRepository.findById(id).get();
+    public DtoCompilation getCompilation(int id) {
+        log.info("Информация о подборке событий с id = {}", id);
+        return mappingCompilation.dtoCompilation(compilationsRepository.findById(id).get());
     }
 
     @Override
-    public List<Compilation> getCompilations(int from, int size, Boolean pinned) {
+    public List<DtoCompilation> getCompilations(int from, int size, Boolean pinned) {
         if (pinned == null) {
-            return compilationsRepository.getEventForCompilationAll(from, size);
+            List<Compilation> compilations = compilationsRepository.getEventForCompilationAll(from, size);
+            List<DtoCompilation> dtoCompilations = new ArrayList<>();
+            for (Compilation compilation : compilations) {
+                dtoCompilations.add(mappingCompilation.dtoCompilation(compilation));
+            }
+            log.info("Информация о подборках событий, не закрепленных на главной странице");
+            return dtoCompilations;
         } else {
-            return compilationsRepository.getEventForCompilation(from, size, pinned);
+            List<Compilation> compilations = compilationsRepository.getEventForCompilation(from, size, pinned);
+            List<DtoCompilation> dtoCompilations = new ArrayList<>();
+            for (Compilation compilation : compilations) {
+                dtoCompilations.add(mappingCompilation.dtoCompilation(compilation));
+            }
+            log.info("Информация о подборках событий, закрепленных на главной странице");
+            return dtoCompilations;
         }
     }
 
     public void deletCompilation(int id) {
+        log.info("Удалена подборка событий с id = {}", id);
         compilationsRepository.deleteById(id);
     }
 
-    public Compilation updateCompilation(int compId, DtoCompilation dtoCompilation) {
-        Compilation compilation = compilationsRepository.findById(compId).orElse(null);
-        compilation.setEvents(eventsRepository.getEventForCompilation(dtoCompilation.getEvents()));
-        if (dtoCompilation.getTitle() != null) {
-            if (!dtoCompilation.getTitle().isBlank()) {
-                compilation.setTitle(dtoCompilation.getTitle());
-            }
-        }
-        if (dtoCompilation.getPinned() != null) {
-            compilation.setPinned(compilation.getPinned());
-        }
-        return compilationsRepository.save(compilation);
+    public DtoCompilation updateCompilation(int compId, UpdateCompilationRequest updateCompilationRequest) {
+        Compilation compilation = compilationsRepository.findById(compId).orElseThrow(() -> new NotFoundException("Подборка событий не найдена!"));
+        compilation.setEvents(eventsRepository.getEventForCompilation(updateCompilationRequest.getEvents()));
+        log.info("Перезаписана подборка событий с id = {}", compId);
+        compilation = mappingCompilation.updateCompilationRequest(updateCompilationRequest, compilation);
+        compilationsRepository.save(compilation);
+        return mappingCompilation.dtoCompilation(compilation);
     }
 }

@@ -42,7 +42,6 @@ public class Event {
     private int participantLimit;
     @Column(name = "state")
     private State state;
-    @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "lat", column = @Column(name = "lat")),
             @AttributeOverride(name = "lon", column = @Column(name = "lon"))

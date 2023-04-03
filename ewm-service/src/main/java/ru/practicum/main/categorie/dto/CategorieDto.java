@@ -1,4 +1,4 @@
-package ru.practicum.main.categorie;
+package ru.practicum.main.categorie.dto;
 
 import lombok.Getter;
 import lombok.Setter;

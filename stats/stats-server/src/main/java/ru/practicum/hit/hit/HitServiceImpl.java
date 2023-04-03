@@ -28,6 +28,7 @@ public class HitServiceImpl implements HitService {
         hitDto.setApp(hit.getApp());
         hitDto.setUri(hit.getUri());
         hitDto.setHits(hit.getHits());
+        log.info("Сохранена информация о просмотре событий");
         return hitDto;
     }
 
@@ -88,6 +89,7 @@ public class HitServiceImpl implements HitService {
                 return (-1) * o1.getHits() + o2.getHits();
             }
         });
+        log.info("Информация о просмотре событий");
         return hitsDto;
     }
 }

@@ -1,12 +1,15 @@
 package ru.practicum.main.user;
 
 
+import ru.practicum.main.user.dto.NewUserRequest;
+import ru.practicum.main.user.dto.UserDto;
+
 import java.util.List;
 
 public interface UserService {
-    User creatUser(User user);
+    UserDto creatUser(NewUserRequest newUserRequest);
 
-    List<User> getUser(int[] ids, int size, int from);
+    List<UserDto> getUser(int[] ids, int size, int from);
 
     void deletUser(int userId);
 

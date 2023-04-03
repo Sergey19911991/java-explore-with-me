@@ -8,8 +8,10 @@ import ru.practicum.main.events.EventsRepository;
 import ru.practicum.main.events.State;
 import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.requests.dto.DtoRequest;
+import ru.practicum.main.requests.dto.ParticipationReauestDto;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -20,16 +22,21 @@ public class RequestServiceImpl implements RequestService {
 
     private final EventsRepository eventsRepository;
 
+    private final MappingRequest mappingRequest;
+
     @Override
-    public Request creatRequest(int userId, int eventId) {
+    public ParticipationReauestDto creatRequest(int userId, int eventId) {
         Event event = eventsRepository.findById(eventId).get();
         if (requestRepository.getRequestsEventConfirmed(eventId).size() >= event.getParticipantLimit()) {
+            log.error("У события заполнен лимит участников!");
             throw new ConflictException("У события заполнен лимит участников!");
         }
         if (event.getInitiator().getId() == userId) {
+            log.error("Добавление запроса от инициатора запроса!");
             throw new ConflictException("Добавление запроса от инициатора запроса!");
         }
         if (event.getState() == State.PENDING) {
+            log.error("Добавление запроса на участие в неопубликованном событии!");
             throw new ConflictException("Добавление запроса на участие в неопубликованном событии!");
         }
         List<Request> requests = requestRepository.getRequestsUserEvent(userId, eventId);
@@ -44,22 +51,33 @@ public class RequestServiceImpl implements RequestService {
                 request.setStatus(String.valueOf(State.PENDING));
             }
             request.setCreated(LocalDateTime.now().toString());
-            return requestRepository.save(request);
+            log.info("Создан запрос");
+            requestRepository.save(request);
+            return mappingRequest.participationReauestDtoCancel(request);
         } else {
+            log.error("Добавление повторного запроса от пользователя!");
             throw new ConflictException("Добавление повторного запроса от пользователя!");
         }
     }
 
     @Override
-    public List<Request> getRequests(int userId) {
-        return requestRepository.getRequestsUser(userId);
+    public List<ParticipationReauestDto> getRequests(int userId) {
+        log.info("Информация о запросах пользователя с id = {}", userId);
+        List<Request> requests = requestRepository.getRequestsUser(userId);
+        List<ParticipationReauestDto> participationReauestDtos = new ArrayList<>();
+        for (Request request : requests) {
+            participationReauestDtos.add(mappingRequest.participationReauestDtoCancel(request));
+        }
+        return participationReauestDtos;
     }
 
     @Override
-    public Request cancelRequest(int userId, int requestId) {
+    public ParticipationReauestDto cancelRequest(int userId, int requestId) {
         Request request = requestRepository.getRequestsUser(userId, requestId);
         request.setStatus(String.valueOf(State.CANCELED));
-        return requestRepository.save(request);
+        log.info("Отменен запрос с id = {}", requestId);
+        requestRepository.save(request);
+        return mappingRequest.participationReauestDtoCancel(request);
     }
 
     @Override
@@ -69,6 +87,7 @@ public class RequestServiceImpl implements RequestService {
         List<Request> requests = requestRepository.getRequests(dtoRequest.getRequestIds());
         if (dtoRequest.getStatus() == Status.CONFIRMED) {
             if (requestRepository.getRequestsEventConfirmed(eventId).size() >= event.getParticipantLimit()) {
+                log.error("У события заполнен лимит участников!");
                 throw new ConflictException("У события заполнен лимит участников!");
             }
             for (Request request : requests) {
@@ -83,16 +102,24 @@ public class RequestServiceImpl implements RequestService {
                     request.setStatus(String.valueOf(State.REJECTED));
                     requestRepository.save(request);
                 } else {
+                    log.error("Отмена уже принятой заявки");
                     throw new ConflictException("Отмена уже принятой заявки");
                 }
             }
             evebtRequestUpdateStatusResult.setRejectedRequests(requests);
         }
+        log.info("Перезаписан запрос");
         return evebtRequestUpdateStatusResult;
     }
 
     @Override
-    public List<Request> getRequestUserEvent(int userId, int eventId) {
-        return requestRepository.getRequestsUserEvent1(eventId);
+    public List<ParticipationReauestDto> getRequestUserEvent(int userId, int eventId) {
+        List<Request> requests = requestRepository.getRequestsUserEvent1(eventId);
+        List<ParticipationReauestDto> participationReauestDtos = new ArrayList<>();
+        for (Request request : requests) {
+            participationReauestDtos.add(mappingRequest.participationReauestDtoCancel(request));
+        }
+        log.info("Информация о запросах");
+        return participationReauestDtos;
     }
 }

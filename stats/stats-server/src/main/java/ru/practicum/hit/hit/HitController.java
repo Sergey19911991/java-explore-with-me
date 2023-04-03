@@ -20,12 +20,14 @@ public class HitController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(value = "/hit")
     public HitDto creatHit(@RequestBody DtoInletHit hit) {
+        log.info("Сохранена информация о просмотре событий");
         return hitService.creatHit(hit);
     }
 
     @GetMapping(value = "/stats")
     public List<HitDto> getHits(@RequestParam(value = "start") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start, @RequestParam(value = "end") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                 @RequestParam(value = "uris",required = false) String[] uri, @RequestParam(value = "unique", defaultValue = "false") boolean unique) {
+        log.info("Информация о просмотре событий");
         return hitService.getHits(start, end, uri, unique);
     }
 }

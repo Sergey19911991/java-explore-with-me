@@ -35,11 +35,11 @@ create table if not exists categories
 create table if not exists events
 (
     annotation
-    varchar,
+    varchar(2000),
     title
-    varchar,
+    varchar(120),
     description
-    varchar,
+    varchar(7000),
     event_date
     timestamp,
     paid

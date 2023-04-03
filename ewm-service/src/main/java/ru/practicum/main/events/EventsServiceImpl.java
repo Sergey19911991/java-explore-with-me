@@ -1,6 +1,5 @@
 package ru.practicum.main.events;
 
-import hit.HitClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,18 +26,17 @@ public class EventsServiceImpl implements EventsService {
 
     private final CategorieRepository categorieRepository;
 
-    private final HitClient hitClient;
-
-
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public NewEvent creatEvent(DtoEvent dtoEvent, int userId) {
         if (dtoEvent.getAnnotation() == null || dtoEvent.getTitle() == null) {
+            log.error("Некорректное тело запроса!");
             throw new RequestException("Некорректное тело запроса!");
         }
         LocalDateTime localDateTime = LocalDateTime.parse(dtoEvent.getEventDate(), formatter);
         if (localDateTime.isBefore(LocalDateTime.now())) {
+            log.error("Добавление события на неподходящую дату!");
             throw new ConflictException("Добавление события на неподходящую дату!");
         }
         Event event = mappingEvent.mapping(dtoEvent);
@@ -47,8 +45,8 @@ public class EventsServiceImpl implements EventsService {
         event.setCategory(categorieRepository.findById(dtoEvent.getCategory()).get());
         event.setLocation(dtoEvent.getLocation());
         event.setState(State.PENDING);
-        //event.setConfirmedRequests(0);
         Event event1 = eventsRepository.save(event);
+        log.info("Создано событие");
         return mappingEvent.mappingNewEvent(event1);
     }
 
@@ -59,6 +57,7 @@ public class EventsServiceImpl implements EventsService {
         for (Event event : events) {
             eventUsers.add(mappingEvent.mappingEventUser(event));
         }
+        log.info("Информация о событиях");
         return eventUsers;
     }
 
@@ -67,6 +66,7 @@ public class EventsServiceImpl implements EventsService {
         if (updateAdmin.getEventDate() != null) {
             LocalDateTime localDateTime = LocalDateTime.parse(updateAdmin.getEventDate(), formatter);
             if (localDateTime.isBefore(LocalDateTime.now())) {
+                log.error("Изменение даты события на уже наступившую");
                 throw new ConflictException("Изменение даты события на уже наступившую");
             }
         }
@@ -81,9 +81,11 @@ public class EventsServiceImpl implements EventsService {
                 event.setPublishedOn(LocalDateTime.now());
             } else {
                 if (event.getState() == State.CANCELED) {
+                    log.error("Публикация отмененного события!");
                     throw new ConflictException("Публикация отмененного события!");
                 }
                 if (event.getState() == State.PUBLISHED) {
+                    log.error("Публикация опубликованного события!");
                     throw new ConflictException("Публикация опубликованного события!");
                 }
             }
@@ -92,10 +94,12 @@ public class EventsServiceImpl implements EventsService {
             if (event.getState() == State.PENDING) {
                 event.setState(State.CANCELED);
             } else if (event.getState() == State.PUBLISHED) {
+                log.error("Отмена опубликованного события!");
                 throw new ConflictException("Отмена опубликованного события!");
             }
         }
         eventsRepository.save(event);
+        log.info("Перезаписано событие с id = {}",id);
         return mappingEvent.mappingNewEvent(event);
     }
 
@@ -108,6 +112,7 @@ public class EventsServiceImpl implements EventsService {
         for (Event event : events) {
             eventsShortDtos.add(mappingEvent.mappingEventsShortDto(event));
         }
+        log.info("Информация о событиях");
         return eventsShortDtos;
     }
 
@@ -116,11 +121,13 @@ public class EventsServiceImpl implements EventsService {
         if (updateAdmin.getEventDate() != null) {
             LocalDateTime localDateTime = LocalDateTime.parse(updateAdmin.getEventDate(), formatter);
             if (localDateTime.isBefore(LocalDateTime.now())) {
+                log.error("Изменение даты события на уже наступившую");
                 throw new ConflictException("Изменение даты события на уже наступившую");
             }
         }
         Event event = eventsRepository.findById(eventId).get();
         if (event.getState() == State.PUBLISHED) {
+            log.error("Изменение опубликованного события!");
             throw new ConflictException("Изменение опубликованного события!");
         }
         mappingEvent.mappingUpdateAdmin(updateAdmin, event);
@@ -134,18 +141,20 @@ public class EventsServiceImpl implements EventsService {
             event.setState(State.PENDING);
         }
         eventsRepository.save(event);
-
+        log.info("Перезаписано событие");
         return mappingEvent.mappingNewEvent(event);
     }
 
     @Override
     public NewEvent getEventById(int id) {
         NewEvent newEvent = mappingEvent.mappingNewEvent(eventsRepository.getEventsById(id));
+        log.info("Информация о событии с id = {}",id);
         return newEvent;
     }
 
     @Override
     public Event getUserEventById(int userId, int eventId) {
+        log.info("Информация о событии с id = {}",eventId);
         return eventsRepository.getUserEvet(userId, eventId);
     }
 
@@ -159,6 +168,7 @@ public class EventsServiceImpl implements EventsService {
             NewEvent newEvent = mappingEvent.mappingNewEvent(event);
             newEvents.add(newEvent);
         }
+        log.info("Информация о событиях");
         return newEvents;
     }
 }

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.requests.dto.DtoRequest;
+import ru.practicum.main.requests.dto.ParticipationReauestDto;
 
 import java.util.List;
 
@@ -18,28 +19,33 @@ public class RequestController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(value = "/{userId}/requests")
-    public Request creatRequest(@PathVariable int userId, @RequestParam(value = "eventId") int eventId) {
+    public ParticipationReauestDto creatRequest(@PathVariable int userId, @RequestParam(value = "eventId") int eventId) {
+        log.info("Создан запрос");
         return requestService.creatRequest(userId, eventId);
     }
 
     @GetMapping(value = "/{userId}/requests")
-    public List<Request> getRequestUser(@PathVariable int userId) {
+    public List<ParticipationReauestDto> getRequestUser(@PathVariable int userId) {
+        log.info("Информация о запросах пользователя с id = {}",userId);
         return requestService.getRequests(userId);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PatchMapping(value = "/{userId}/requests/{requestId}/cancel")
-    public Request cancelRequest(@PathVariable(value = "userId") int userId, @PathVariable(value = "requestId") int requestId) {
+    public ParticipationReauestDto cancelRequest(@PathVariable(value = "userId") int userId, @PathVariable(value = "requestId") int requestId) {
+        log.info("Отменен запрос с id = {}",requestId);
         return requestService.cancelRequest(userId, requestId);
     }
 
     @PatchMapping(value = "/{userId}/events/{eventId}/requests")
     public EvebtRequestUpdateStatusResult updateStatus(@PathVariable(value = "userId") int userId, @PathVariable(value = "eventId") int eventId, @RequestBody DtoRequest dtoRequest) {
+        log.info("Перезаписан запрос");
         return requestService.updateStatus(userId, eventId, dtoRequest);
     }
 
     @GetMapping(value = "/{userId}/events/{eventId}/requests")
-    public List<Request> getRequestUserEvent(@PathVariable int userId, @PathVariable int eventId) {
+    public List<ParticipationReauestDto> getRequestUserEvent(@PathVariable int userId, @PathVariable int eventId) {
+        log.info("Информация о запросах");
         return requestService.getRequestUserEvent(userId, eventId);
     }
 }

@@ -44,7 +44,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, String> handleValidationException(final ValidationExeption e) {
+    public Map<String, String> handleOtherException(final OtherException e) {
         log.error("Исключение ValidationException");
         return Map.of("error", e.getMessage(),
                 "errorMessage", e.getMessage()

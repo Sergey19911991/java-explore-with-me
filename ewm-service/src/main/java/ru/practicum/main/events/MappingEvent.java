@@ -3,7 +3,7 @@ package ru.practicum.main.events;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.main.categorie.Categorie;
-import ru.practicum.main.categorie.CategorieDto;
+import ru.practicum.main.categorie.dto.CategorieDto;
 import ru.practicum.main.events.dto.*;
 import ru.practicum.main.user.User;
 

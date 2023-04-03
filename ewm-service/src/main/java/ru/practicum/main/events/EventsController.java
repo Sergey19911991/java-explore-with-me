@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.events.dto.NewEvent;
 import ru.practicum.main.events.dto.UpdateAdmin;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,7 +19,8 @@ public class EventsController {
     private final EventsService eventsService;
 
     @PatchMapping(value = "/{eventId}")
-    public NewEvent updateAdmin(@RequestBody UpdateAdmin updateAdmin, @PathVariable int eventId) {
+    public NewEvent updateAdmin(@RequestBody @Valid UpdateAdmin updateAdmin, @PathVariable int eventId) {
+        log.info("Перезаписана информация о событии");
         return eventsService.updateAdmin(updateAdmin, eventId);
     }
 
@@ -31,6 +33,7 @@ public class EventsController {
                                      @RequestParam(value = "categories",required = false) int[] categories,
                                      @RequestParam(value = "users",required = false) int[] users,
                                      @RequestParam(value = "states", required = false) String[] states) {
+        log.info("Информация о событиях");
         return eventsService.getAdminEvents(size, from, rangeStart, rangeEnd, categories, users, states);
     }
 }

@@ -2,7 +2,7 @@ package ru.practicum.main.events.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import ru.practicum.main.categorie.CategorieDto;
+import ru.practicum.main.categorie.dto.CategorieDto;
 
 @Getter
 @Setter

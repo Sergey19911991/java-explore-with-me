@@ -35,12 +35,14 @@ public class PublicEventsController {
                                          @RequestParam(value = "size", defaultValue = "10") int size,
                                          HttpServletRequest request) {
         hitClient.createHit(hitClient.mappingHitDtoClient(request));
+        log.info("Информация о событиях");
         return eventsService.getEvent(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
     }
 
     @GetMapping(value = "/{id}")
     public NewEvent getEventById(@PathVariable int id, HttpServletRequest request) {
         hitClient.createHit(hitClient.mappingHitDtoClient(request));
+        log.info("Информация о событии с id = {}",id);
         return eventsService.getEventById(id);
     }
 }
