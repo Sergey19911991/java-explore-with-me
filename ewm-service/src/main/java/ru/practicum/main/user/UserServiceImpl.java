@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.main.exception.ConflictException;
-import ru.practicum.main.exception.RequestException;
 import ru.practicum.main.user.dto.NewUserRequest;
 import ru.practicum.main.user.dto.UserDto;
 
@@ -22,7 +21,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto creatUser(NewUserRequest newUserRequest) {
-        if (newUserRequest.getName() != null) {
             List<User> users = userRepository.getName(newUserRequest.getName());
             if (users.size() == 0) {
                 log.info("Создан пользователь {}", newUserRequest);
@@ -33,10 +31,6 @@ public class UserServiceImpl implements UserService {
                 log.error("Добавление пользователя с занятым именем!");
                 throw new ConflictException("Добавление пользователя с занятым именем!");
             }
-        } else {
-            log.error("Неправильное тело запроса!");
-            throw new RequestException("Неправильное тело запроса!");
-        }
     }
 
     @Override

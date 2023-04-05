@@ -97,15 +97,17 @@ public class RequestServiceImpl implements RequestService {
             evebtRequestUpdateStatusResult.setConfirmedRequests(requests);
         }
         if (dtoRequest.getStatus() == Status.REJECTED) {
+            List<Request> requestList = new ArrayList<>();
             for (Request request : requests) {
                 if (!request.getStatus().equals(String.valueOf(State.CONFIRMED))) {
                     request.setStatus(String.valueOf(State.REJECTED));
-                    requestRepository.save(request);
+                    requestList.add(request);
                 } else {
                     log.error("Отмена уже принятой заявки");
                     throw new ConflictException("Отмена уже принятой заявки");
                 }
             }
+            requestRepository.saveAll(requestList);
             evebtRequestUpdateStatusResult.setRejectedRequests(requests);
         }
         log.info("Перезаписан запрос");

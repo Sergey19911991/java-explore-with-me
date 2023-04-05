@@ -1,9 +1,10 @@
-package ru.practicum.hit.hit;
+package ru.practicum.hit;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -22,5 +23,5 @@ public class Hit {
     @Column(name = "app")
     private String app;
     @Column(name = "timestamp")
-    private String timestamp;
+    private LocalDateTime timestamp;
 }

@@ -1,7 +1,7 @@
-package ru.practicum.hit.hit;
+package ru.practicum.hit;
 
-import dto.DtoInletHit;
-import dto.HitDto;
+import ru.practicum.dto.DtoInletHit;
+import ru.practicum.dto.HitDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;

@@ -8,6 +8,7 @@ import ru.practicum.main.compilations.dto.NewCompilationDto;
 import ru.practicum.main.compilations.dto.UpdateCompilationRequest;
 import ru.practicum.main.events.EventsRepository;
 import ru.practicum.main.exception.NotFoundException;
+import ru.practicum.main.exception.RequestException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,13 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public DtoCompilation creatCompilation(NewCompilationDto newCompilationDto) {
         Compilation compilation = mappingCompilation.compilationNewCompilationDto(newCompilationDto);
+        if (newCompilationDto.getEvents() != null) {
+            compilation.setEvents(eventsRepository.getEventForCompilation(newCompilationDto.getEvents()));
+           // return compilation;
+        } else {
+            log.error("Неправильное тело запроса!");
+            throw new RequestException("Неправильное тело запроса!");
+        }
         log.info("Создана подборка событий");
         compilationsRepository.save(compilation);
         return mappingCompilation.dtoCompilation(compilation);

@@ -6,14 +6,11 @@ import org.springframework.stereotype.Service;
 import ru.practicum.main.compilations.dto.DtoCompilation;
 import ru.practicum.main.compilations.dto.NewCompilationDto;
 import ru.practicum.main.compilations.dto.UpdateCompilationRequest;
-import ru.practicum.main.events.EventsRepository;
-import ru.practicum.main.exception.RequestException;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class MappingCompilation {
-    private final EventsRepository eventsRepository;
 
 
     public Compilation compilationNewCompilationDto(NewCompilationDto newCompilationDto) {
@@ -22,13 +19,8 @@ public class MappingCompilation {
             compilation.setPinned(newCompilationDto.getPinned());
         }
         compilation.setTitle(newCompilationDto.getTitle());
-        if (newCompilationDto.getEvents() != null) {
-            compilation.setEvents(eventsRepository.getEventForCompilation(newCompilationDto.getEvents()));
-            return compilation;
-        } else {
-            log.error("Неправильное тело запроса!");
-            throw new RequestException("Неправильное тело запроса!");
-        }
+        return compilation;
+
     }
 
     public Compilation updateCompilationRequest(UpdateCompilationRequest updateCompilationRequest, Compilation compilation) {

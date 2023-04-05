@@ -1,7 +1,7 @@
 package hit;
 
 import client.BaseClient;
-import dto.DtoInletHit;
+import ru.practicum.dto.DtoInletHit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -18,6 +18,7 @@ import java.util.Map;
 
 @Service
 public class HitClient extends BaseClient {
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
     public HitClient(@Value("${stats-server.url}") String serverUrl, RestTemplateBuilder builder) {
@@ -43,12 +44,12 @@ public class HitClient extends BaseClient {
         return get("/stats?start={start}&end={end}&uri={{uri}}&unique={unique}", parameters);
     }
 
-    public DtoInletHit mappingHitDtoClient(HttpServletRequest request) {
+    public DtoInletHit mappingHitDtoClient(HttpServletRequest request, String app) {
         DtoInletHit hit = new DtoInletHit();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         hit.setTimestamp(LocalDateTime.now().format(formatter));
         hit.setIp(request.getRemoteAddr());
         hit.setUri(request.getRequestURI());
+        hit.setApp(app);
         return hit;
     }
 

@@ -70,7 +70,7 @@ public class CategorieServiceImpl implements CategorieService {
 
     @Override
     public CategorieDto updateCategorie(CategorieDto categorieDto, int catId) {
-        Categorie categorie = categorieRepository.findById(catId).get();
+        Categorie categorie = categorieRepository.findById(catId).orElseThrow(() -> new NotFoundException("Катеогория не найдена"));
         if (categorieDto.getName() != null && !categorieDto.getName().isBlank()) {
             List<Categorie> categories = categorieRepository.getName(categorieDto.getName());
             if (categories.size() == 0) {

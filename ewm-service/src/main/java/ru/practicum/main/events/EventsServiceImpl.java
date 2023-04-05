@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.practicum.main.categorie.CategorieRepository;
 import ru.practicum.main.events.dto.*;
 import ru.practicum.main.exception.ConflictException;
-import ru.practicum.main.exception.RequestException;
 import ru.practicum.main.user.UserRepository;
 
 import java.time.LocalDateTime;
@@ -30,10 +29,6 @@ public class EventsServiceImpl implements EventsService {
 
     @Override
     public NewEvent creatEvent(DtoEvent dtoEvent, int userId) {
-        if (dtoEvent.getAnnotation() == null || dtoEvent.getTitle() == null) {
-            log.error("Некорректное тело запроса!");
-            throw new RequestException("Некорректное тело запроса!");
-        }
         LocalDateTime localDateTime = LocalDateTime.parse(dtoEvent.getEventDate(), formatter);
         if (localDateTime.isBefore(LocalDateTime.now())) {
             log.error("Добавление события на неподходящую дату!");

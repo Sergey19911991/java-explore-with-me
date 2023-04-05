@@ -5,6 +5,7 @@ import lombok.Setter;
 import ru.practicum.main.events.StateAction;
 import ru.practicum.main.location.Location;
 
+import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 
 @Getter
@@ -16,6 +17,7 @@ public class UpdateAdmin {
     @Size(min = 20,max = 7000)
     private String description;
     private Boolean paid;
+    @PositiveOrZero
     private Integer participantLimit;
     @Size(min = 3,max = 120)
     private String title;

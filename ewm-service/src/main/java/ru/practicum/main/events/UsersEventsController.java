@@ -33,7 +33,7 @@ public class UsersEventsController {
     }
 
     @PatchMapping(value = "/{userId}/events/{eventId}")
-    public NewEvent updateUser(@RequestBody UpdateAdmin updateAdmin, @PathVariable(value = "userId") int userId, @PathVariable(value = "eventId") int eventId) {
+    public NewEvent updateUser(@RequestBody @Valid UpdateAdmin updateAdmin, @PathVariable(value = "userId") int userId, @PathVariable(value = "eventId") int eventId) {
         log.info("Перезаписано событие с id = {}",eventId);
         return eventsService.updateUser(updateAdmin, userId, eventId);
     }
