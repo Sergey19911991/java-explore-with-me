@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.main.events.dto.EventFullDto;
 import ru.practicum.main.events.dto.EventsShortDto;
-import ru.practicum.main.events.dto.NewEvent;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -41,7 +41,7 @@ public class PublicEventsController {
     }
 
     @GetMapping(value = "/{id}")
-    public NewEvent getEventById(@PathVariable int id, HttpServletRequest request, @Value("${DtoInletHit.app}") String app) {
+    public EventFullDto getEventById(@PathVariable int id, HttpServletRequest request, @Value("${DtoInletHit.app}") String app) {
         hitClient.createHit(hitClient.mappingHitDtoClient(request, app));
         log.info("Информация о событии с id = {}", id);
         return eventsService.getEventById(id);

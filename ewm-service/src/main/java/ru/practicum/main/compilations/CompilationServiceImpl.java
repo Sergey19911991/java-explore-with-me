@@ -28,7 +28,6 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation compilation = mappingCompilation.compilationNewCompilationDto(newCompilationDto);
         if (newCompilationDto.getEvents() != null) {
             compilation.setEvents(eventsRepository.getEventForCompilation(newCompilationDto.getEvents()));
-           // return compilation;
         } else {
             log.error("Неправильное тело запроса!");
             throw new RequestException("Неправильное тело запроса!");
@@ -72,7 +71,9 @@ public class CompilationServiceImpl implements CompilationService {
 
     public DtoCompilation updateCompilation(int compId, UpdateCompilationRequest updateCompilationRequest) {
         Compilation compilation = compilationsRepository.findById(compId).orElseThrow(() -> new NotFoundException("Подборка событий не найдена!"));
-        compilation.setEvents(eventsRepository.getEventForCompilation(updateCompilationRequest.getEvents()));
+        if (updateCompilationRequest.getEvents() != null) {
+            compilation.setEvents(eventsRepository.getEventForCompilation(updateCompilationRequest.getEvents()));
+        }
         log.info("Перезаписана подборка событий с id = {}", compId);
         compilation = mappingCompilation.updateCompilationRequest(updateCompilationRequest, compilation);
         compilationsRepository.save(compilation);

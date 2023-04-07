@@ -11,23 +11,22 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class NewEvent {
+public class EventFullDto {
     private int id;
     private String annotation;
     private Categorie category;
     private String description;
-    private Boolean paid;
+    private boolean paid;
     @PositiveOrZero
-    private int participantLimit;
+    private Integer participantLimit;
     private String title;
-    private Boolean requestModeration;
+    private boolean requestModeration;
     private Location location;
     private String eventDate;
     private UserShortDto initiator;
     private LocalDateTime createdOn;
     private State state;
     private String publishedOn;
-    private Integer views;
+    private Long views;
     private Integer confirmedRequests;
 }
-

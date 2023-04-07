@@ -70,10 +70,10 @@ public class CategorieServiceImpl implements CategorieService {
 
     @Override
     public CategorieDto updateCategorie(CategorieDto categorieDto, int catId) {
-        Categorie categorie = categorieRepository.findById(catId).orElseThrow(() -> new NotFoundException("Катеогория не найдена"));
+        Categorie categorie = categorieRepository.findById(catId).orElseThrow(() -> new NotFoundException("Категория не найдена"));
         if (categorieDto.getName() != null && !categorieDto.getName().isBlank()) {
             List<Categorie> categories = categorieRepository.getName(categorieDto.getName());
-            if (categories.size() == 0) {
+            if (categories.size() == 0 || categorie.getName().equals(categorieDto.getName())) {
                 categorie = mappingCategory.dtoCategorie(categorieDto, categorie);
                 log.info("Переименована категория с id = {}", catId);
                 categorieRepository.save(categorie);

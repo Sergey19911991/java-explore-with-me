@@ -16,7 +16,7 @@ public class MappingEvent {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public Event mapping(DtoEvent dtoEvent) {
+    public Event mapping(NewEventDto dtoEvent) {
         Event event = new Event();
         event.setAnnotation(dtoEvent.getAnnotation());
         event.setTitle(dtoEvent.getTitle());
@@ -28,8 +28,8 @@ public class MappingEvent {
         return event;
     }
 
-    public NewEvent mappingNewEvent(Event event) {
-        NewEvent newEvent = new NewEvent();
+    public EventFullDto mappingNewEvent(Event event) {
+        EventFullDto newEvent = new EventFullDto();
         newEvent.setId(event.getId());
         newEvent.setEventDate(event.getEventDate().format(formatter));
         newEvent.setAnnotation(event.getAnnotation());
@@ -47,14 +47,15 @@ public class MappingEvent {
         newEvent.setLocation(event.getLocation());
         newEvent.setParticipantLimit(event.getParticipantLimit());
         newEvent.setCreatedOn(event.getCreatedOn());
+        newEvent.setViews(Long.valueOf(0));
         if (event.getPublishedOn() != null) {
             newEvent.setPublishedOn(event.getPublishedOn().format(formatter));
         }
         return newEvent;
     }
 
-    public EventUser mappingEventUser(Event event) {
-        EventUser eventUser = new EventUser();
+    public EventsShortDto mappingEventUser(Event event) {
+        EventsShortDto eventUser = new EventsShortDto();
         eventUser.setId(event.getId());
         eventUser.setEventDate(event.getEventDate().format(formatter));
         CategorieDto categorieDto = new CategorieDto();
@@ -65,10 +66,11 @@ public class MappingEvent {
         eventUser.setAnnotation(event.getAnnotation());
         eventUser.setTitle(event.getTitle());
         eventUser.setPaid(event.getPaid());
+        eventUser.setViews(Long.valueOf(0));
         return eventUser;
     }
 
-    public Event mappingUpdateAdmin(UpdateAdmin updateAdmin, Event event) {
+    public Event mappingUpdateAdmin(UpdateEventAdminRequest updateAdmin, Event event) {
         if (updateAdmin.getAnnotation() != null) {
             if (!updateAdmin.getAnnotation().isBlank()) {
                 event.setAnnotation(updateAdmin.getAnnotation());
@@ -115,6 +117,7 @@ public class MappingEvent {
         eventsShortDto.setInitiator(userShortDto);
         eventsShortDto.setPaid(event.getPaid());
         eventsShortDto.setTitle(event.getTitle());
+        eventsShortDto.setViews(Long.valueOf(0));
         return eventsShortDto;
     }
 

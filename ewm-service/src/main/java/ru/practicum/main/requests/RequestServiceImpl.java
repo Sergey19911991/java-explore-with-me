@@ -7,8 +7,10 @@ import ru.practicum.main.events.Event;
 import ru.practicum.main.events.EventsRepository;
 import ru.practicum.main.events.State;
 import ru.practicum.main.exception.ConflictException;
+import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.requests.dto.DtoRequest;
 import ru.practicum.main.requests.dto.ParticipationReauestDto;
+import ru.practicum.main.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,9 +26,11 @@ public class RequestServiceImpl implements RequestService {
 
     private final MappingRequest mappingRequest;
 
+    private final UserRepository userRepository;
+
     @Override
     public ParticipationReauestDto creatRequest(int userId, int eventId) {
-        Event event = eventsRepository.findById(eventId).get();
+        Event event = eventsRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие не найдено"));
         if (requestRepository.getRequestsEventConfirmed(eventId).size() >= event.getParticipantLimit()) {
             log.error("У события заполнен лимит участников!");
             throw new ConflictException("У события заполнен лимит участников!");
@@ -42,8 +46,8 @@ public class RequestServiceImpl implements RequestService {
         List<Request> requests = requestRepository.getRequestsUserEvent(userId, eventId);
         if (requests.size() == 0) {
             Request request = new Request();
-            request.setRequester(userId);
-            request.setEvent(eventId);
+            request.setRequester(userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден")));
+            request.setEvent(eventsRepository.findById(eventId).get());
             if (event.getRequestModeration() == false) {
                 request.setStatus(String.valueOf(State.CONFIRMED));
             }
@@ -82,7 +86,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public EvebtRequestUpdateStatusResult updateStatus(int userId, int eventId, DtoRequest dtoRequest) {
-        Event event = eventsRepository.findById(eventId).get();
+        Event event = eventsRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие не найдено"));
         EvebtRequestUpdateStatusResult evebtRequestUpdateStatusResult = new EvebtRequestUpdateStatusResult();
         List<Request> requests = requestRepository.getRequests(dtoRequest.getRequestIds());
         if (dtoRequest.getStatus() == Status.CONFIRMED) {
@@ -94,7 +98,11 @@ public class RequestServiceImpl implements RequestService {
                 request.setStatus(String.valueOf(State.CONFIRMED));
                 requestRepository.save(request);
             }
-            evebtRequestUpdateStatusResult.setConfirmedRequests(requests);
+            List<ParticipationReauestDto> participationReauestDtos = new ArrayList<>();
+            for (Request request : requests) {
+                participationReauestDtos.add(mappingRequest.participationReauestDtoCancel(request));
+            }
+            evebtRequestUpdateStatusResult.setConfirmedRequests(participationReauestDtos);
         }
         if (dtoRequest.getStatus() == Status.REJECTED) {
             List<Request> requestList = new ArrayList<>();
@@ -108,7 +116,11 @@ public class RequestServiceImpl implements RequestService {
                 }
             }
             requestRepository.saveAll(requestList);
-            evebtRequestUpdateStatusResult.setRejectedRequests(requests);
+            List<ParticipationReauestDto> participationReauestDtoList = new ArrayList<>();
+            for (Request request : requests) {
+                participationReauestDtoList.add(mappingRequest.participationReauestDtoCancel(request));
+            }
+            evebtRequestUpdateStatusResult.setRejectedRequests(participationReauestDtoList);
         }
         log.info("Перезаписан запрос");
         return evebtRequestUpdateStatusResult;

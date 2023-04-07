@@ -1,10 +1,18 @@
 package ru.practicum.main.events;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import hit.HitClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.practicum.dto.HitDto;
 import ru.practicum.main.categorie.CategorieRepository;
-import ru.practicum.main.events.dto.*;
+import ru.practicum.main.events.dto.EventFullDto;
+import ru.practicum.main.events.dto.EventsShortDto;
+import ru.practicum.main.events.dto.NewEventDto;
+import ru.practicum.main.events.dto.UpdateEventAdminRequest;
 import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.user.UserRepository;
 
@@ -25,10 +33,16 @@ public class EventsServiceImpl implements EventsService {
 
     private final CategorieRepository categorieRepository;
 
+    private final HitClient hitClient;
+
+    private final LocalDateTime max = LocalDateTime.of(3023, 9, 19, 14, 5);
+
+    private final LocalDateTime min = LocalDateTime.of(1023, 9, 19, 14, 5);
+
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
-    public NewEvent creatEvent(DtoEvent dtoEvent, int userId) {
+    public EventFullDto creatEvent(NewEventDto dtoEvent, int userId) {
         LocalDateTime localDateTime = LocalDateTime.parse(dtoEvent.getEventDate(), formatter);
         if (localDateTime.isBefore(LocalDateTime.now())) {
             log.error("Добавление события на неподходящую дату!");
@@ -46,18 +60,22 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
-    public List<EventUser> getEventUser(int id, int from, int size) {
+    public List<EventsShortDto> getEventUser(int id, int from, int size) {
         List<Event> events = eventsRepository.getEventsUser(id, from, size);
-        List<EventUser> eventUsers = new ArrayList<>();
+        List<EventsShortDto> eventUsers = new ArrayList<>();
         for (Event event : events) {
-            eventUsers.add(mappingEvent.mappingEventUser(event));
+            EventsShortDto eventsShortDto = mappingEvent.mappingEventUser(event);
+            for (HitDto hitDto : viewsStats(event.getId())) {
+                eventsShortDto.setViews(hitDto.getHits() + eventsShortDto.getViews());
+            }
+            eventUsers.add(eventsShortDto);
         }
         log.info("Информация о событиях");
         return eventUsers;
     }
 
     @Override
-    public NewEvent updateAdmin(UpdateAdmin updateAdmin, int id) {
+    public EventFullDto updateAdmin(UpdateEventAdminRequest updateAdmin, int id) {
         if (updateAdmin.getEventDate() != null) {
             LocalDateTime localDateTime = LocalDateTime.parse(updateAdmin.getEventDate(), formatter);
             if (localDateTime.isBefore(LocalDateTime.now())) {
@@ -94,8 +112,12 @@ public class EventsServiceImpl implements EventsService {
             }
         }
         eventsRepository.save(event);
-        log.info("Перезаписано событие с id = {}",id);
-        return mappingEvent.mappingNewEvent(event);
+        log.info("Перезаписано событие с id = {}", id);
+        EventFullDto eventFullDto = mappingEvent.mappingNewEvent(event);
+        for (HitDto hitDto : viewsStats(id)) {
+            eventFullDto.setViews(hitDto.getHits() + eventFullDto.getViews());
+        }
+        return eventFullDto;
     }
 
     @Override
@@ -105,14 +127,18 @@ public class EventsServiceImpl implements EventsService {
         List<Event> events = eventsRepository.getEvent(from, size, rangeStart, rangeEnd, categories, Boolean.valueOf(paid), text);
         List<EventsShortDto> eventsShortDtos = new ArrayList<>();
         for (Event event : events) {
-            eventsShortDtos.add(mappingEvent.mappingEventsShortDto(event));
+            EventsShortDto eventsShortDto = mappingEvent.mappingEventsShortDto(event);
+            for (HitDto hitDto : viewsStats(event.getId())) {
+                eventsShortDto.setViews(hitDto.getHits() + eventsShortDto.getViews());
+            }
+            eventsShortDtos.add(eventsShortDto);
         }
         log.info("Информация о событиях");
         return eventsShortDtos;
     }
 
     @Override
-    public NewEvent updateUser(UpdateAdmin updateAdmin, int userId, int eventId) {
+    public EventFullDto updateUser(UpdateEventAdminRequest updateAdmin, int userId, int eventId) {
         if (updateAdmin.getEventDate() != null) {
             LocalDateTime localDateTime = LocalDateTime.parse(updateAdmin.getEventDate(), formatter);
             if (localDateTime.isBefore(LocalDateTime.now())) {
@@ -137,33 +163,54 @@ public class EventsServiceImpl implements EventsService {
         }
         eventsRepository.save(event);
         log.info("Перезаписано событие");
-        return mappingEvent.mappingNewEvent(event);
+        EventFullDto eventFullDto = mappingEvent.mappingNewEvent(event);
+        for (HitDto hitDto : viewsStats(event.getId())) {
+            eventFullDto.setViews(hitDto.getHits() + eventFullDto.getViews());
+        }
+        return eventFullDto;
     }
 
     @Override
-    public NewEvent getEventById(int id) {
-        NewEvent newEvent = mappingEvent.mappingNewEvent(eventsRepository.getEventsById(id));
-        log.info("Информация о событии с id = {}",id);
+    public EventFullDto getEventById(int id) {
+        EventFullDto newEvent = mappingEvent.mappingNewEvent(eventsRepository.getEventsById(id));
+        for (HitDto hitDto : viewsStats(id)) {
+            newEvent.setViews(hitDto.getHits() + newEvent.getViews());
+        }
+        log.info("Информация о событии с id = {}", id);
         return newEvent;
     }
 
     @Override
-    public Event getUserEventById(int userId, int eventId) {
-        log.info("Информация о событии с id = {}",eventId);
-        return eventsRepository.getUserEvet(userId, eventId);
+    public EventFullDto getUserEventById(int userId, int eventId) {
+        EventFullDto eventFullDto = mappingEvent.mappingNewEvent(eventsRepository.getUserEvet(userId, eventId));
+        for (HitDto hitDto : viewsStats(eventId)) {
+            eventFullDto.setViews(hitDto.getHits() + eventFullDto.getViews());
+        }
+        log.info("Информация о событии с id = {}", eventId);
+        return eventFullDto;
     }
 
 
     @Override
-    public List<NewEvent> getAdminEvents(int size, int from, LocalDateTime rangeStart, LocalDateTime rangeEnd, int[] categories, int[] users,
-                                         String[] states) {
+    public List<EventFullDto> getAdminEvents(int size, int from, LocalDateTime rangeStart, LocalDateTime rangeEnd, int[] categories, int[] users,
+                                             String[] states) {
         List<Event> events = eventsRepository.getEventAdmin(from, size, rangeStart, rangeEnd, categories, users, states);
-        List<NewEvent> newEvents = new ArrayList<>();
+        List<EventFullDto> newEvents = new ArrayList<>();
         for (Event event : events) {
-            NewEvent newEvent = mappingEvent.mappingNewEvent(event);
+            EventFullDto newEvent = mappingEvent.mappingNewEvent(event);
             newEvents.add(newEvent);
         }
         log.info("Информация о событиях");
         return newEvents;
     }
+
+    private List<HitDto> viewsStats(int id) {
+        String[] uris = new String[1];
+        uris[0] = "/events/" + Integer.toString(id);
+        ResponseEntity<Object> hits = hitClient.getHits(min.format(formatter), max.format(formatter), uris, false);
+        List<HitDto> hitList = new ObjectMapper().convertValue(hits.getBody(), new TypeReference<List<HitDto>>() {
+        });
+        return hitList;
+    }
+
 }

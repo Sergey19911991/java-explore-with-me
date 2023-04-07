@@ -39,7 +39,7 @@ public class Event {
     @JoinColumn(name = "id_category")
     private Categorie category;
     @Column(name = "participant_limit")
-    private int participantLimit;
+    private Integer participantLimit;
     @Column(name = "state")
     private State state;
     @AttributeOverrides({

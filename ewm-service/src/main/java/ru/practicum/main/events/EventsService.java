@@ -1,26 +1,29 @@
 package ru.practicum.main.events;
 
-import ru.practicum.main.events.dto.*;
+import ru.practicum.main.events.dto.EventFullDto;
+import ru.practicum.main.events.dto.EventsShortDto;
+import ru.practicum.main.events.dto.NewEventDto;
+import ru.practicum.main.events.dto.UpdateEventAdminRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventsService {
-    NewEvent creatEvent(DtoEvent dtoEvent, int userId);
+    EventFullDto creatEvent(NewEventDto dtoEvent, int userId);
 
-    List<EventUser> getEventUser(int id, int from, int size);
+    List<EventsShortDto> getEventUser(int id, int from, int size);
 
-    NewEvent updateAdmin(UpdateAdmin updateAdmin, int id);
+    EventFullDto updateAdmin(UpdateEventAdminRequest updateAdmin, int id);
 
     List<EventsShortDto> getEvent(String text, int[] categories, String paid, LocalDateTime rangeStart, LocalDateTime rangeEnd,
                          String onlyAvailable, Sort sort, int from, int size);
 
-    NewEvent updateUser(UpdateAdmin updateAdmin, int userId, int eventId);
+    EventFullDto updateUser(UpdateEventAdminRequest updateAdmin, int userId, int eventId);
 
-    NewEvent getEventById(int id);
+    EventFullDto getEventById(int id);
 
-    Event getUserEventById(int userId, int eventId);
+    EventFullDto getUserEventById(int userId, int eventId);
 
-    List<NewEvent> getAdminEvents(int size, int from, LocalDateTime rangeStart, LocalDateTime rangeEnd, int[] categories, int[] users,
+    List<EventFullDto> getAdminEvents(int size, int from, LocalDateTime rangeStart, LocalDateTime rangeEnd, int[] categories, int[] users,
                                String[] states);
 }

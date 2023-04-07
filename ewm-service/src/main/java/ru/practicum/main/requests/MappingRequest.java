@@ -10,9 +10,9 @@ public class MappingRequest {
     public ParticipationReauestDto participationReauestDtoCancel(Request request) {
         ParticipationReauestDto participationReauestDto = new ParticipationReauestDto();
         participationReauestDto.setId(request.getId());
-        participationReauestDto.setRequester(request.getRequester());
+        participationReauestDto.setRequester(request.getRequester().getId());
         participationReauestDto.setCreated(request.getCreated());
-        participationReauestDto.setEvent(request.getEvent());
+        participationReauestDto.setEvent(request.getEvent().getId());
         participationReauestDto.setStatus(request.getStatus());
         return participationReauestDto;
     }
