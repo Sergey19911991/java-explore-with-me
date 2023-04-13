@@ -41,7 +41,9 @@ public class Event {
     @Column(name = "participant_limit")
     private Integer participantLimit;
     @Column(name = "state")
+    @Enumerated(EnumType.STRING)
     private State state;
+
     @AttributeOverrides({
             @AttributeOverride(name = "lat", column = @Column(name = "lat")),
             @AttributeOverride(name = "lon", column = @Column(name = "lon"))

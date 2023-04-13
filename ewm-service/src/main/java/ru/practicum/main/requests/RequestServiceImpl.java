@@ -31,9 +31,11 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public ParticipationReauestDto creatRequest(int userId, int eventId) {
         Event event = eventsRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие не найдено"));
-        if (requestRepository.getRequestsEventConfirmed(eventId).size() >= event.getParticipantLimit()) {
-            log.error("У события заполнен лимит участников!");
-            throw new ConflictException("У события заполнен лимит участников!");
+        if (event.getParticipantLimit() != 0) {
+            if (requestRepository.getRequestsEventConfirmed(eventId).size() >= event.getParticipantLimit()) {
+                log.error("У события заполнен лимит участников!");
+                throw new ConflictException("У события заполнен лимит участников!");
+            }
         }
         if (event.getInitiator().getId() == userId) {
             log.error("Добавление запроса от инициатора запроса!");
@@ -50,8 +52,7 @@ public class RequestServiceImpl implements RequestService {
             request.setEvent(eventsRepository.findById(eventId).get());
             if (event.getRequestModeration() == false) {
                 request.setStatus(String.valueOf(State.CONFIRMED));
-            }
-            if (event.getRequestModeration() == true) {
+            } else {
                 request.setStatus(String.valueOf(State.PENDING));
             }
             request.setCreated(LocalDateTime.now().toString());
@@ -90,14 +91,16 @@ public class RequestServiceImpl implements RequestService {
         EvebtRequestUpdateStatusResult evebtRequestUpdateStatusResult = new EvebtRequestUpdateStatusResult();
         List<Request> requests = requestRepository.getRequests(dtoRequest.getRequestIds());
         if (dtoRequest.getStatus() == Status.CONFIRMED) {
+            List<Request> requestList = new ArrayList<>();
             if (requestRepository.getRequestsEventConfirmed(eventId).size() >= event.getParticipantLimit()) {
                 log.error("У события заполнен лимит участников!");
                 throw new ConflictException("У события заполнен лимит участников!");
             }
             for (Request request : requests) {
                 request.setStatus(String.valueOf(State.CONFIRMED));
-                requestRepository.save(request);
+                requestList.add(request);
             }
+            requestRepository.saveAll(requestList);
             List<ParticipationReauestDto> participationReauestDtos = new ArrayList<>();
             for (Request request : requests) {
                 participationReauestDtos.add(mappingRequest.participationReauestDtoCancel(request));

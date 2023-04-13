@@ -22,7 +22,7 @@ public class MappingEvent {
         event.setTitle(dtoEvent.getTitle());
         event.setParticipantLimit(dtoEvent.getParticipantLimit());
         event.setEventDate(LocalDateTime.parse(dtoEvent.getEventDate(), formatter));
-        event.setPaid(dtoEvent.getPaid());
+        event.setPaid(dtoEvent.isPaid());
         event.setRequestModeration(dtoEvent.getRequestModeration());
         event.setDescription(dtoEvent.getDescription());
         return event;

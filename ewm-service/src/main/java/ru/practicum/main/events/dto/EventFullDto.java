@@ -6,7 +6,6 @@ import ru.practicum.main.categorie.Categorie;
 import ru.practicum.main.events.State;
 import ru.practicum.main.location.Location;
 
-import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 
 @Getter
@@ -17,7 +16,6 @@ public class EventFullDto {
     private Categorie category;
     private String description;
     private boolean paid;
-    @PositiveOrZero
     private Integer participantLimit;
     private String title;
     private boolean requestModeration;

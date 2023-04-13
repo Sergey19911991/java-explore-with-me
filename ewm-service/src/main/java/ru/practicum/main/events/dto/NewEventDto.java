@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import ru.practicum.main.location.Location;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 
@@ -19,7 +20,7 @@ public class NewEventDto {
     @NotBlank
     @Size(min = 20,max = 7000)
     private String description;
-    private Boolean paid;
+    private boolean paid;
     @Value("0")
     @PositiveOrZero
     private Integer participantLimit;
@@ -28,6 +29,8 @@ public class NewEventDto {
     private String title;
     @Value("true")
     private Boolean requestModeration;
+    @NotNull
     private Location location;
+    @NotBlank
     private String eventDate;
 }
