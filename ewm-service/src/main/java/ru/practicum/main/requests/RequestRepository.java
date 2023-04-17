@@ -62,7 +62,7 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
             "WHERE req.event.id in (?1) " +
             "AND req.status='CONFIRMED' " +
             "Group by req.event.id")
-    Map<Long, Integer> getRequestsEventConfirmedMap(List<Integer> idList);
+    Map<Integer, Integer> getRequestsEventConfirmedMap(List<Integer> idList);
 
 
 }

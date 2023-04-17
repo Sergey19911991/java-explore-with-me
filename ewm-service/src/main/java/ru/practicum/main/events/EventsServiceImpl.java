@@ -188,7 +188,7 @@ public class EventsServiceImpl implements EventsService {
         for (Event event1 : events) {
             eventsId.add(event1.getId());
         }
-        Map<Long, Integer> eventRequest = requestRepository.getRequestsEventConfirmedMap(eventsId);
+        Map<Integer, Integer> eventRequest = requestRepository.getRequestsEventConfirmedMap(eventsId);
         List<EventsShortDto> eventsShortDtos = new ArrayList<>();
         String[] uris = new String[100];
         int k = 0;
@@ -340,7 +340,7 @@ public class EventsServiceImpl implements EventsService {
         for (Event event1 : events) {
             eventsId.add(event1.getId());
         }
-        Map<Long, Integer> eventRequest = requestRepository.getRequestsEventConfirmedMap(eventsId);
+        Map<Integer, Integer> eventRequest = requestRepository.getRequestsEventConfirmedMap(eventsId);
 
         List<EventFullDto> newEvents = new ArrayList<>();
         String[] uris = new String[100];
