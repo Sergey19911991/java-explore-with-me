@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RequestRepository extends JpaRepository<Request, Integer> {
     @Query(value = "select * " +
@@ -54,6 +55,14 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
             "AND r.status='CONFIRMED' ",
             nativeQuery = true)
     List<Request> getRequestsEventConfirmed(int id);
+
+
+    @Query(value = "select req.event.id, count(req) " +
+            "from Request as req " +
+            "WHERE req.event.id in (?1) " +
+            "AND req.status='CONFIRMED' " +
+            "Group by req.event.id")
+    Map<Long, Integer> getRequestsEventConfirmedMap(List<Integer> idList);
 
 
 }
