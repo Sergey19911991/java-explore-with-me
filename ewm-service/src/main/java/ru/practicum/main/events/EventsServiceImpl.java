@@ -11,6 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.HitDto;
 import ru.practicum.main.categorie.CategorieRepository;
+import ru.practicum.main.comment.Comment;
+import ru.practicum.main.comment.CommentRepository;
+import ru.practicum.main.comment.MappingComment;
+import ru.practicum.main.comment.dto.NewComment;
 import ru.practicum.main.events.dto.EventFullDto;
 import ru.practicum.main.events.dto.EventsShortDto;
 import ru.practicum.main.events.dto.NewEventDto;
@@ -21,10 +25,7 @@ import ru.practicum.main.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -40,6 +41,8 @@ public class EventsServiceImpl implements EventsService {
 
     private final CategorieRepository categorieRepository;
 
+    private final CommentRepository commentRepository;
+
     private final HitClient hitClient;
 
     private final LocalDateTime max = LocalDateTime.of(3023, 9, 19, 14, 5);
@@ -47,6 +50,8 @@ public class EventsServiceImpl implements EventsService {
     private final LocalDateTime min = LocalDateTime.of(1023, 9, 19, 14, 5);
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    private final MappingComment mappingComment;
 
     @Override
     public EventFullDto creatEvent(NewEventDto dtoEvent, int userId) {
@@ -85,6 +90,9 @@ public class EventsServiceImpl implements EventsService {
                     eventsShortDto.setViews(hitDto.getHits() + eventsShortDto.getViews());
                 }
             }
+        }
+        for (EventsShortDto eventsShortDto : eventUsers) {
+            eventsShortDto.setComments(mappingListNewComment(eventsShortDto.getId()));
         }
         log.info("Информация о событиях");
         return eventUsers;
@@ -134,6 +142,7 @@ public class EventsServiceImpl implements EventsService {
         for (HitDto hitDto : hitDtoList) {
             eventFullDto.setViews(hitDto.getHits() + eventFullDto.getViews());
         }
+
         return eventFullDto;
     }
 
@@ -175,7 +184,11 @@ public class EventsServiceImpl implements EventsService {
                 .get();
 
         Iterable<Event> events = eventsRepository.findAll(finalCondition, pageRequest);
-
+        List<Integer> eventsId = new ArrayList<>();
+        for (Event event1 : events) {
+            eventsId.add(event1.getId());
+        }
+        Map<Integer, Integer> eventRequest = requestRepository.getRequestsEventConfirmedMap(eventsId);
         List<EventsShortDto> eventsShortDtos = new ArrayList<>();
         String[] uris = new String[100];
         int k = 0;
@@ -183,7 +196,7 @@ public class EventsServiceImpl implements EventsService {
             EventsShortDto eventsShortDto = mappingEvent.mappingEventsShortDto(event1);
             uris[k] = "/events/" + Integer.toString(event1.getId());
             k = k + 1;
-            eventsShortDto.setConfirmedRequests(requestRepository.getRequestsEventConfirmed(event1.getId()).size());
+            eventsShortDto.setConfirmedRequests(eventRequest.get(event1.getId()));
             if (Boolean.valueOf(onlyAvailable) && (eventsShortDto.getConfirmedRequests() <= event1.getParticipantLimit() || event1.getParticipantLimit() == 0)) {
                 eventsShortDtos.add(eventsShortDto);
             } else if (!Boolean.valueOf(onlyAvailable)) {
@@ -202,6 +215,9 @@ public class EventsServiceImpl implements EventsService {
             Collections.sort(eventsShortDtos, COMPARE_BY_EVENT_DATE);
         } else {
             Collections.sort(eventsShortDtos, COMPARE_BY_VIEWS);
+        }
+        for (EventsShortDto eventsShortDto : eventsShortDtos) {
+            eventsShortDto.setComments(mappingListNewComment(eventsShortDto.getId()));
         }
         log.info("Информация о событиях");
         return eventsShortDtos;
@@ -251,6 +267,7 @@ public class EventsServiceImpl implements EventsService {
                 newEvent.setViews(hitDto.getHits() + newEvent.getViews());
             }
             newEvent.setConfirmedRequests(requestRepository.getRequestsEventConfirmed(id).size());
+            newEvent.setComments(mappingListNewComment(id));
             log.info("Информация о событии с id = {}", id);
             return newEvent;
         } else {
@@ -266,6 +283,7 @@ public class EventsServiceImpl implements EventsService {
         for (HitDto hitDto : hitDtoList) {
             eventFullDto.setViews(hitDto.getHits() + eventFullDto.getViews());
         }
+        eventFullDto.setComments(mappingListNewComment(eventId));
         log.info("Информация о событии с id = {}", eventId);
         return eventFullDto;
     }
@@ -318,6 +336,11 @@ public class EventsServiceImpl implements EventsService {
                 .get();
 
         Iterable<Event> events = eventsRepository.findAll(finalCondition, pageRequest);
+        List<Integer> eventsId = new ArrayList<>();
+        for (Event event1 : events) {
+            eventsId.add(event1.getId());
+        }
+        Map<Integer, Integer> eventRequest = requestRepository.getRequestsEventConfirmedMap(eventsId);
 
         List<EventFullDto> newEvents = new ArrayList<>();
         String[] uris = new String[100];
@@ -326,7 +349,7 @@ public class EventsServiceImpl implements EventsService {
             EventFullDto newEvent = mappingEvent.mappingNewEvent(event1);
             uris[k] = "/events/" + Integer.toString(event1.getId());
             k = k + 1;
-            newEvent.setConfirmedRequests(requestRepository.getRequestsEventConfirmed(event1.getId()).size());
+            newEvent.setConfirmedRequests(eventRequest.get(event1.getId()));
             newEvents.add(newEvent);
         }
         List<HitDto> hitDtoList = viewsStatsUris(uris);
@@ -336,6 +359,9 @@ public class EventsServiceImpl implements EventsService {
                     eventFullDto.setViews(hitDto.getHits() + eventFullDto.getViews());
                 }
             }
+        }
+        for (EventFullDto eventFullDto : newEvents) {
+            eventFullDto.setComments(mappingListNewComment(eventFullDto.getId()));
         }
         log.info("Информация о событиях");
         return newEvents;
@@ -370,6 +396,15 @@ public class EventsServiceImpl implements EventsService {
             return lhs.getViews().compareTo(rhs.getViews());
         }
     };
+
+    private List<NewComment> mappingListNewComment(int eventId) {
+        List<Comment> commentList = commentRepository.getCommentByIdEvent(eventId);
+        List<NewComment> newComments = new ArrayList<>();
+        for (Comment comment : commentList) {
+            newComments.add(mappingComment.mappingCommentNewComment(comment));
+        }
+        return newComments;
+    }
 
 
 }

@@ -3,10 +3,12 @@ package ru.practicum.main.events.dto;
 import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.main.categorie.Categorie;
+import ru.practicum.main.comment.dto.NewComment;
 import ru.practicum.main.events.State;
 import ru.practicum.main.location.Location;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -27,4 +29,5 @@ public class EventFullDto {
     private String publishedOn;
     private Long views;
     private Integer confirmedRequests;
+    private List<NewComment> comments;
 }

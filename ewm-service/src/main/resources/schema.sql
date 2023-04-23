@@ -1,3 +1,4 @@
+drop table if exists comment;
 drop table if exists event_compolation;
 drop table if exists compilations;
 drop table if exists requests;
@@ -136,5 +137,33 @@ create table if not exists event_compolation
     references
     compilations
 );
+create table if not exists comment
+(
+    id
+    serial
+    constraint
+    comment_pk
+    primary
+    key,
+    text
+    varchar
+(
+    2000
+),
+    id_event
+    integer
+    constraint
+    comment_events_id_fk
+    references
+    events,
+    created
+    timestamp,
+    id_user
+    integer
+    constraint
+    comment_users_id_fk
+    references
+    users
+    );
 
 
